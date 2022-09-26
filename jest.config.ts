@@ -30,13 +30,13 @@ const config: Config.InitialOptions = {
   ],
   testPathIgnorePatterns: ["<rootDir>/.next", "<rootDir>/playwright/"],
   transform: {
-    "^.+\\.(js|jsx|ts|tsx)$": ["babel-jest", { presets: ["next/babel"] }],
+    "^.+\\.(js|jsx|ts|tsx|mjs)$": ["babel-jest", { presets: ["next/babel"] }],
   },
   transformIgnorePatterns: [
     "/node_modules/",
-    "^.+\\.module\\.(css|sass|scss)$",
+    "^.+\\.module\\.(css|sass|scss|mjs)$",
   ],
-  testEnvironment: "jsdom",
+  testEnvironment: "node",
   moduleNameMapper: makeModuleNameMapperFromTsConfig("<rootDir>"),
 };
 

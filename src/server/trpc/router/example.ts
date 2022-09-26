@@ -6,7 +6,7 @@ export const exampleRouter = t.router({
     .input(z.object({ text: z.string() }))
     .query(({ input }) => {
       return {
-        greeting: `Hello ${input?.text ?? "world"}`,
+        greeting: input.text,
         id: "123",
       };
     }),
@@ -14,12 +14,13 @@ export const exampleRouter = t.router({
     return ctx.prisma.example.findMany();
   }),
   getById: t.procedure
-    .input(z.object({ id: z.string() }))
-    .query(({ ctx, input }) => {
-      return ctx.prisma.example.findUnique({
-        where: {
+    .input(z.object({ id: z.string(), text: z.string() }))
+    .query(({ input }) => {
+      if (input.id) {
+        return {
           id: input.id,
-        },
-      });
+          text: input.text,
+        };
+      }
     }),
 });

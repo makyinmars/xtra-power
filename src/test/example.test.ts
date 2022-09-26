@@ -15,8 +15,11 @@ test("add greeting and get id", async () => {
     text: "hello test",
   };
 
-  const greeting = await caller.example.hello(input);
-  const byId = await caller.example.getById({ id: greeting.id });
+  const hello = await caller.example.hello(input);
+  const byId = await caller.example.getById({
+    id: hello.id,
+    text: hello.greeting,
+  });
 
   expect(byId).toMatchObject(input);
 });
