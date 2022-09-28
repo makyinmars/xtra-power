@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Get secret message when logged in: You are logged in and can see this secret message! 1`] = `"You are logged in and can see this secret message!"`;

@@ -1,5 +1,5 @@
 /**
- * Integration test example for the `post` router
+ * Integration test example for the `example` router
  */
 import { createContextInner } from "src/server/trpc/context";
 import { AppRouter, appRouter } from "src/server/trpc/router/index";
