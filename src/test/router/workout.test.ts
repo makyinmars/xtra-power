@@ -6,10 +6,20 @@ import { AppRouter, appRouter } from "src/server/trpc/router/index";
 import { inferProcedureInput } from "@trpc/server";
 import { Workout } from "@prisma/client";
 
+const session = {
+  user: {
+    id: "1",
+    name: "Test User",
+    email: "test@gmail.com",
+  },
+  expires: new Date().toDateString(),
+};
+
 test("Create a workout and retrieve new workout", async () => {
   const ctx = await createContextInner({
-    session: null,
+    session: session,
   });
+
   const caller = appRouter.createCaller(ctx);
 
   const input: inferProcedureInput<AppRouter["workout"]["createWorkout"]> = {
@@ -28,8 +38,9 @@ test("Create a workout and retrieve new workout", async () => {
 
 test("Update a workout and retrieve the updated workout", async () => {
   const ctx = await createContextInner({
-    session: null,
+    session: session,
   });
+
   const caller = appRouter.createCaller(ctx);
 
   const input: inferProcedureInput<AppRouter["workout"]["createWorkout"]> = {
@@ -58,7 +69,7 @@ test("Update a workout and retrieve the updated workout", async () => {
 
 test("Delete a workout", async () => {
   const ctx = await createContextInner({
-    session: null,
+    session: session,
   });
   const caller = appRouter.createCaller(ctx);
 

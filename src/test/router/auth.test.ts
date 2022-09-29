@@ -5,14 +5,18 @@ import { createContextInner } from "src/server/trpc/context";
 import { AppRouter, appRouter } from "src/server/trpc/router/index";
 import { inferProcedureOutput } from "@trpc/server";
 
+const session = {
+  user: {
+    id: "1",
+    name: "Test User",
+    email: "test@gmail.com",
+  },
+  expires: new Date().toDateString(),
+};
+
 test("Check if user is logged in and get the user's session", async () => {
   const ctx = await createContextInner({
-    session: {
-      user: {
-        id: "1",
-      },
-      expires: new Date().toDateString(),
-    },
+    session: session,
   });
 
   const caller = appRouter.createCaller(ctx);
@@ -24,19 +28,14 @@ test("Check if user is logged in and get the user's session", async () => {
     expires: new Date().toDateString(),
   };
 
-  const session = await caller.auth.getSession();
+  const newSession = await caller.auth.getSession();
 
-  expect(session).toMatchObject(output);
+  expect(newSession).toMatchObject(output);
 });
 
 test("Get secret message when logged in", async () => {
   const ctx = await createContextInner({
-    session: {
-      user: {
-        id: "1",
-      },
-      expires: new Date().toDateString(),
-    },
+    session: session,
   });
 
   const caller = appRouter.createCaller(ctx);
@@ -46,5 +45,5 @@ test("Get secret message when logged in", async () => {
 
   const secretMessage = await caller.auth.getSecretMessage();
 
-  expect(secretMessage).toMatchSnapshot(output)
+  expect(secretMessage).toMatchSnapshot(output);
 });
