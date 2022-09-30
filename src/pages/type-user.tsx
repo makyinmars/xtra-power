@@ -1,0 +1,142 @@
+import { Dialog, Transition, RadioGroup } from "@headlessui/react";
+import { Fragment, useState } from "react";
+import { BsCheckLg } from "react-icons/bs";
+import { useRouter } from "next/router";
+
+export default function MyModal() {
+  const router = useRouter();
+  const [isOpen, setIsOpen] = useState(true);
+
+  const closeModal = () => {
+    router.push("/");
+  };
+
+  return (
+    <>
+      <Transition appear show={isOpen} as={Fragment}>
+        <Dialog as="div" className="relative z-10" onClose={closeModal}>
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0 bg-black bg-opacity-25" />
+          </Transition.Child>
+
+          <div className="fixed inset-0 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4 text-center">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-sky-900 p-6 text-left align-middle shadow-xl transition-all h-full">
+                  <Dialog.Title
+                    as="h3"
+                    className="text-2xl font-bold leading-6 text-slate-200 text-center"
+                  >
+                    Select Type of User
+                  </Dialog.Title>
+                  <Radio />
+
+                  <div className="flex justify-center">
+                    <button
+                      type="button"
+                      className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 font-medium text-slate-900 hover:bg-sky-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-200 focus-visible:ring-offset-2 text-lg"
+                      onClick={closeModal}
+                    >
+                      Select Option
+                    </button>
+                  </div>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
+    </>
+  );
+}
+
+const users = [
+  {
+    type: "Trainer",
+    description: "I am a trainer and I want to check my client progress.",
+  },
+  {
+    type: "Client",
+    description: "I am a client and I want to check my progress and workouts.",
+  },
+];
+
+const Radio = () => {
+  const [selected, setSelected] = useState(users[0]);
+
+  return (
+    <div className="w-full px-4 py-16">
+      <div className="mx-auto w-full max-w-md">
+        <RadioGroup value={selected} onChange={setSelected}>
+          <div className="space-y-2">
+            {users.map((user, i) => (
+              <RadioGroup.Option
+                key={i}
+                value={user}
+                className={({ active, checked }) =>
+                  `${
+                    active
+                      ? "ring-2 ring-white ring-opacity-60 ring-offset-2 ring-offset-sky-300"
+                      : ""
+                  }
+                  ${
+                    checked ? "bg-sky-300 bg-opacity-75 text-white" : "bg-white"
+                  }
+                    relative flex cursor-pointer rounded-lg px-5 py-4 shadow-md focus:outline-none`
+                }
+              >
+                {({ active, checked }) => (
+                  <>
+                    <div className="flex w-full items-center justify-between">
+                      <div className="flex items-center">
+                        <div className="text-sm">
+                          <RadioGroup.Label
+                            as="p"
+                            className={`font-medium text-xl ${
+                              checked ? "text-slate-900" : "text-slate-900"
+                            }`}
+                          >
+                            {user.type}
+                          </RadioGroup.Label>
+                          <RadioGroup.Description
+                            as="span"
+                            className={`inline text-lg ${
+                              checked ? "text-slate-900" : "text-gray-500"
+                            }`}
+                          >
+                            <span>{user.description}</span>
+                          </RadioGroup.Description>
+                        </div>
+                      </div>
+                      {checked && (
+                        <div className="shrink-0 text-white">
+                          <BsCheckLg className="h-6 w-6" />
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
+              </RadioGroup.Option>
+            ))}
+          </div>
+        </RadioGroup>
+      </div>
+    </div>
+  );
+};
