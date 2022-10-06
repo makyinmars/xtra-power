@@ -4,6 +4,16 @@
 
 @layer base{
   body {
-    @apply bg-sky-400 text-slate-800;
+    @apply bg-sky-300 text-slate-800;
+  }
+}
+
+@layer components{
+  .title-page {
+    @apply text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-500 to-slate-900 text-center;
+  }
+
+  .button {
+    @apply flex w-24 items-center shadow-lg drop-shadow-lg justify-center rounded-md border border-transparent bg-sky-800 text-slate-200 text-base font-medium hover:bg-sky-700 md:py-4 md:px-10 md:text-lg;
   }
 }

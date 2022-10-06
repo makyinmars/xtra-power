@@ -1,15 +1,66 @@
 import { Dialog, Transition, RadioGroup } from "@headlessui/react";
-import { Fragment, useState } from "react";
+import { Fragment, useState, useEffect } from "react";
 import { BsCheckLg } from "react-icons/bs";
 import { useRouter } from "next/router";
+import { useSession } from "next-auth/react";
 
-export default function MyModal() {
+import { trpc } from "src/utils/trpc";
+
+const users = [
+  {
+    type: "Trainer",
+    description: "I am a trainer and I want to check my client progress.",
+  },
+  {
+    type: "Client",
+    description: "I am a client and I want to check my progress and workouts.",
+  },
+];
+
+const TypeUser = () => {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(true);
+  const [selected, setSelected] = useState(users[0]);
+  const { data: session } = useSession();
+
+  const utils = trpc.useContext();
+
+  const email = session?.user?.email as string;
+
+  const { data, isLoading, isError } = trpc.user.getUserByEmail.useQuery({
+    email,
+  });
+
+  const updateTypeUser = trpc.user.updateTypeUser.useMutation({
+    async onSuccess() {
+      await utils.user.getUserByEmail.invalidate();
+    },
+  });
+
+  const handleUpdateTypeUser = async (type: string) => {
+    try {
+      const data = {
+        email,
+        type,
+      };
+      const userUpdated = await updateTypeUser.mutateAsync(data);
+
+      if (userUpdated) {
+        setIsOpen(false);
+        router.push("/");
+      }
+    } catch {}
+  };
 
   const closeModal = () => {
     router.push("/");
   };
+
+  useEffect(() => {
+    if (data && data.type) {
+      router.push("/");
+    }
+  }, [router, data]);
 
   return (
     <>
@@ -45,13 +96,75 @@ export default function MyModal() {
                   >
                     Select Type of User
                   </Dialog.Title>
-                  <Radio />
 
+                  <div className="w-full px-4 py-16">
+                    <div className="mx-auto w-full max-w-md">
+                      <RadioGroup value={selected} onChange={setSelected}>
+                        <div className="space-y-2">
+                          {users.map((user, i) => (
+                            <RadioGroup.Option
+                              key={i}
+                              value={user}
+                              className={({ active, checked }) =>
+                                `${
+                                  active
+                                    ? "ring-2 ring-white ring-opacity-60 ring-offset-2 ring-offset-sky-300"
+                                    : ""
+                                }
+                  ${
+                    checked ? "bg-sky-300 bg-opacity-75 text-white" : "bg-white"
+                  }
+                    relative flex cursor-pointer rounded-lg px-5 py-4 shadow-md focus:outline-none`
+                              }
+                            >
+                              {({ active, checked }) => (
+                                <>
+                                  <div className="flex w-full items-center justify-between">
+                                    <div className="flex items-center">
+                                      <div className="text-sm">
+                                        <RadioGroup.Label
+                                          as="p"
+                                          className={`font-medium text-xl ${
+                                            checked
+                                              ? "text-slate-900"
+                                              : "text-slate-900"
+                                          }`}
+                                        >
+                                          {user.type}
+                                        </RadioGroup.Label>
+                                        <RadioGroup.Description
+                                          as="span"
+                                          className={`inline text-lg ${
+                                            checked
+                                              ? "text-slate-900"
+                                              : "text-gray-500"
+                                          }`}
+                                        >
+                                          <span>{user.description}</span>
+                                        </RadioGroup.Description>
+                                      </div>
+                                    </div>
+                                    {checked && (
+                                      <div className="shrink-0 text-white">
+                                        <BsCheckLg className="h-6 w-6" />
+                                      </div>
+                                    )}
+                                  </div>
+                                </>
+                              )}
+                            </RadioGroup.Option>
+                          ))}
+                        </div>
+                      </RadioGroup>
+                    </div>
+                  </div>
                   <div className="flex justify-center">
                     <button
                       type="button"
                       className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 font-medium text-slate-900 hover:bg-sky-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-200 focus-visible:ring-offset-2 text-lg"
-                      onClick={closeModal}
+                      onClick={() =>
+                        handleUpdateTypeUser(selected?.type as string)
+                      }
                     >
                       Select Option
                     </button>
@@ -64,79 +177,6 @@ export default function MyModal() {
       </Transition>
     </>
   );
-}
-
-const users = [
-  {
-    type: "Trainer",
-    description: "I am a trainer and I want to check my client progress.",
-  },
-  {
-    type: "Client",
-    description: "I am a client and I want to check my progress and workouts.",
-  },
-];
-
-const Radio = () => {
-  const [selected, setSelected] = useState(users[0]);
-
-  return (
-    <div className="w-full px-4 py-16">
-      <div className="mx-auto w-full max-w-md">
-        <RadioGroup value={selected} onChange={setSelected}>
-          <div className="space-y-2">
-            {users.map((user, i) => (
-              <RadioGroup.Option
-                key={i}
-                value={user}
-                className={({ active, checked }) =>
-                  `${
-                    active
-                      ? "ring-2 ring-white ring-opacity-60 ring-offset-2 ring-offset-sky-300"
-                      : ""
-                  }
-                  ${
-                    checked ? "bg-sky-300 bg-opacity-75 text-white" : "bg-white"
-                  }
-                    relative flex cursor-pointer rounded-lg px-5 py-4 shadow-md focus:outline-none`
-                }
-              >
-                {({ active, checked }) => (
-                  <>
-                    <div className="flex w-full items-center justify-between">
-                      <div className="flex items-center">
-                        <div className="text-sm">
-                          <RadioGroup.Label
-                            as="p"
-                            className={`font-medium text-xl ${
-                              checked ? "text-slate-900" : "text-slate-900"
-                            }`}
-                          >
-                            {user.type}
-                          </RadioGroup.Label>
-                          <RadioGroup.Description
-                            as="span"
-                            className={`inline text-lg ${
-                              checked ? "text-slate-900" : "text-gray-500"
-                            }`}
-                          >
-                            <span>{user.description}</span>
-                          </RadioGroup.Description>
-                        </div>
-                      </div>
-                      {checked && (
-                        <div className="shrink-0 text-white">
-                          <BsCheckLg className="h-6 w-6" />
-                        </div>
-                      )}
-                    </div>
-                  </>
-                )}
-              </RadioGroup.Option>
-            ))}
-          </div>
-        </RadioGroup>
-      </div>
-    </div>
-  );
 };
+
+export default TypeUser;

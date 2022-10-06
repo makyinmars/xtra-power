@@ -40,6 +40,24 @@ export const userRouter = t.router({
       return user;
     }),
 
+  updateTypeUser: authedProcedure
+    .input(
+      z.object({
+        email: z.string(),
+        type: z.string(),
+      })
+    )
+    .mutation(({ ctx, input: { email, type } }) => {
+      const updatedUser = ctx.prisma.user.update({
+        where: {
+          email,
+        },
+        data: {
+          type,
+        },
+      });
+      return updatedUser;
+    }),
   updateUser: authedProcedure
     .input(
       z.object({
