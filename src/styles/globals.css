@@ -2,15 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base{
+@layer base {
   body {
     @apply bg-sky-300 text-slate-800;
   }
 }
 
-@layer components{
+@layer components {
   .title-page {
-    @apply text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-500 to-slate-900 text-center;
+    @apply text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-500 to-slate-900 text-center mb-4;
+  }
+
+  .subtitle-page {
+    @apply text-2xl font-semibold  text-slate-700 text-center;
   }
 
   .button {

@@ -50,6 +50,8 @@ model User {
   name          String?
   email         String?   @unique
   type          String?
+  trainerId     String?
+  clients       String[]
   emailVerified DateTime?
   image         String?
   accounts      Account[]
