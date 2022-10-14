@@ -45,5 +45,5 @@ test("Get secret message when logged in", async () => {
 
   const secretMessage = await caller.auth.getSecretMessage();
 
-  expect({message: secretMessage}).toMatchObject({message: output});
+  expect({ message: secretMessage }).toMatchObject({ message: output });
 });

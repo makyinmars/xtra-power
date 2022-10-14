@@ -1,4 +1,5 @@
 import { useForm, SubmitHandler } from "react-hook-form";
+import { useRouter } from "next/router";
 
 import { trpc } from "src/utils/trpc";
 
@@ -14,13 +15,23 @@ const Workout = () => {
     formState: { errors },
   } = useForm<WorkoutInput>();
 
-  const createWorkout = trpc.workout.createWorkout.useMutation();
+  const utils = trpc.useContext();
+
+  const createWorkout = trpc.workout.createWorkout.useMutation({
+    async onSuccess() {
+      await utils.workout.getWorkouts.invalidate();
+      await utils.workout.getWorkoutById.invalidate();
+    },
+  });
+  const router = useRouter();
 
   const onSubmit: SubmitHandler<WorkoutInput> = async (data) => {
     try {
       const newWorkout = await createWorkout.mutateAsync(data);
 
-      console.log(newWorkout);
+      if (newWorkout) {
+        router.push(`/workout/${newWorkout.id}`);
+      }
     } catch {}
   };
   return (
@@ -60,8 +71,13 @@ const Workout = () => {
             Submit
           </button>
         </form>
-        <div>
-          <button>View My Workouts</button>
+        <div className="flex justify-center">
+          <button
+            className="button w-full"
+            onClick={() => router.push("/view-workouts")}
+          >
+            View My Workouts
+          </button>
         </div>
       </div>
     </div>

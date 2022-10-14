@@ -4,7 +4,7 @@
 
 @layer base {
   body {
-    @apply bg-sky-300 text-slate-800;
+    @apply bg-sky-200 text-slate-800;
   }
 }
 

@@ -1,29 +1,27 @@
 import { t, authedProcedure } from "../trpc";
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
-export const workoutRouter = t.router({
-  getWorkouts: authedProcedure.query(({ ctx }) => {
-    return ctx.prisma.workout.findMany({});
+export const exerciseRouter = t.router({
+  getExercises: authedProcedure.query(({ ctx }) => {
+    return ctx.prisma.exercise.findMany();
   }),
-  getWorkoutById: authedProcedure
+
+  getExerciseById: authedProcedure
     .input(z.object({ id: z.string() }))
     .query(({ ctx, input }) => {
-      return ctx.prisma.workout.findFirst({
+      return ctx.prisma.exercise.findUnique({
         where: {
           id: input.id,
         },
-        include: {
-          exercises: true,
-        },
       });
     }),
-  updateWorkout: authedProcedure
+
+  updateExercise: authedProcedure
     .input(
       z.object({ id: z.string(), name: z.string(), description: z.string() })
     )
     .mutation(({ ctx, input }) => {
-      return ctx.prisma.workout.update({
+      return ctx.prisma.exercise.update({
         where: {
           id: input.id,
         },
@@ -33,22 +31,31 @@ export const workoutRouter = t.router({
         },
       });
     }),
-  deleteWorkoutById: authedProcedure
+
+  deleteExerciseById: authedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(({ ctx, input }) => {
-      return ctx.prisma.workout.delete({
+      return ctx.prisma.exercise.delete({
         where: {
           id: input.id,
         },
       });
     }),
-  createWorkout: authedProcedure
-    .input(z.object({ name: z.string(), description: z.string() }))
+
+  createExercise: authedProcedure
+    .input(
+      z.object({
+        name: z.string(),
+        description: z.string(),
+        workoutId: z.string(),
+      })
+    )
     .mutation(({ ctx, input }) => {
-      return ctx.prisma.workout.create({
+      return ctx.prisma.exercise.create({
         data: {
           name: input.name,
           description: input.description,
+          workoutId: input.workoutId,
         },
       });
     }),

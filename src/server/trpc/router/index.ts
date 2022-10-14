@@ -4,11 +4,13 @@ import { exampleRouter } from "./example";
 import { authRouter } from "./auth";
 import { workoutRouter } from "./workout";
 import { userRouter } from "./user";
+import { exerciseRouter } from "./exercise";
 
 export const appRouter = t.router({
   example: exampleRouter,
   auth: authRouter,
   workout: workoutRouter,
+  exercise: exerciseRouter,
   user: userRouter,
 });
 
