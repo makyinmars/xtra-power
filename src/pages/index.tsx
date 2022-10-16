@@ -1,6 +1,13 @@
-import type { NextPage, GetServerSideProps} from "next";
+import type { NextPage, GetServerSideProps } from "next";
+import Image from "next/image";
 import Head from "next/head";
-import { signIn, signOut, useSession, getProviders, getSession } from "next-auth/react";
+import {
+  signIn,
+  signOut,
+  useSession,
+  getProviders,
+  getSession,
+} from "next-auth/react";
 import Link from "next/link";
 
 const Home: NextPage = () => {
@@ -10,7 +17,10 @@ const Home: NextPage = () => {
     <>
       <Head>
         <title>Xtra Power</title>
-        <meta name="description" content="Get your workouts my friend with Xtra Power!" />
+        <meta
+          name="description"
+          content="Get your workouts my friend with Xtra Power!"
+        />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="container flex flex-col items-center justify-center min-h-screen p-4 mx-auto gap-4">
@@ -22,10 +32,12 @@ const Home: NextPage = () => {
             <h2 className="text-xl text-slate-900 text-center">
               Signed in as {session.user?.name}
             </h2>
-            <img
+            <Image
               src={session.user?.image as string}
               alt={session.user?.name as string}
               className="w-20 h-20 rounded-full mx-auto"
+              width={30}
+              height={30}
             />
             <div className="flex justify-center">
               <button className="button w-full" onClick={() => signOut()}>
@@ -44,7 +56,7 @@ const Home: NextPage = () => {
         ) : (
           <div>
             <button
-                className="button w-full"
+              className="button w-full"
               onClick={() =>
                 signIn("discord", {
                   callbackUrl: `/type-user`,

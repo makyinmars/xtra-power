@@ -20,4 +20,8 @@
   .button {
     @apply flex w-24 items-center shadow-lg drop-shadow-lg justify-center rounded-md border border-transparent bg-sky-800 text-slate-200 text-base font-medium hover:bg-sky-700 md:py-4 md:px-10 md:text-lg;
   }
+
+  .icon-menu {
+    @apply w-6 h-6;
+  }
 }

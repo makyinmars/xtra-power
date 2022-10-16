@@ -1,4 +1,5 @@
 import { useRouter } from "next/router";
+import Spinner from "src/components/spinner";
 
 import { trpc } from "src/utils/trpc";
 
@@ -9,16 +10,14 @@ const WorkoutId = () => {
     id,
   });
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
-  if (isError) {
-    return <div>Error</div>;
-  }
-
   return (
     <div className="container mx-auto p-4">
+      {isLoading && <Spinner />}
+      {isError && (
+        <p className="text-center font-bold text-red-400 text-lg">
+          Error loading workout
+        </p>
+      )}
       {data && (
         <div className="flex flex-col gap-4">
           <h1 className="title-page">{data.name}</h1>
