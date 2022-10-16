@@ -36,8 +36,8 @@ const Home: NextPage = () => {
               src={session.user?.image as string}
               alt={session.user?.name as string}
               className="w-20 h-20 rounded-full mx-auto"
-              width={30}
-              height={30}
+              width={55}
+              height={200}
             />
             <div className="flex justify-center">
               <button className="button w-full" onClick={() => signOut()}>
