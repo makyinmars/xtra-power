@@ -53,6 +53,7 @@ const Menu = ({ children }: MenuProps) => {
                   className="mx-auto h-10 w-10 rounded-full"
                   width={30}
                   height={30}
+                  priority={true}
                 />
               )}
             </HeadlessMenu.Button>

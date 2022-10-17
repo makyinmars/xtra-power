@@ -38,6 +38,7 @@ const Home: NextPage = () => {
               className="w-20 h-20 rounded-full mx-auto"
               width={55}
               height={200}
+              priority={true}
             />
             <div className="flex justify-center">
               <button className="button w-full" onClick={() => signOut()}>
