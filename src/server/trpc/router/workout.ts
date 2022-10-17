@@ -1,10 +1,13 @@
 import { t, authedProcedure } from "../trpc";
-import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 export const workoutRouter = t.router({
   getWorkouts: authedProcedure.query(({ ctx }) => {
-    return ctx.prisma.workout.findMany({});
+    return ctx.prisma.workout.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
   }),
   getWorkoutById: authedProcedure
     .input(z.object({ id: z.string() }))

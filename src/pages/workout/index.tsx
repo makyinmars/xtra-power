@@ -21,7 +21,7 @@ const Workout = () => {
           <div className="flex justify-center">
             <button
               className="button w-full"
-              onClick={() => router.push("/view-workouts")}
+              onClick={() => router.push("/workout/view-workouts")}
             >
               View My Workouts
             </button>

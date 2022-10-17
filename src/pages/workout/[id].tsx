@@ -1,6 +1,7 @@
 import { useRouter } from "next/router";
 import type { GetServerSideProps } from "next";
 import { getProviders, getSession } from "next-auth/react";
+import Head from "next/head";
 
 import { trpc } from "src/utils/trpc";
 import Spinner from "src/components/spinner";
@@ -25,6 +26,9 @@ const WorkoutId = () => {
         )}
         {data && (
           <div className="flex flex-col gap-4">
+            <Head>
+              <title>{data.name}</title>
+            </Head>
             <h1 className="title-page">{data.name}</h1>
             <p className="text-center font-semibold text-lg">
               {data.description}
