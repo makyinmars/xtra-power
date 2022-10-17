@@ -2,6 +2,7 @@ import { useRouter } from "next/router";
 import type { GetServerSideProps } from "next";
 import { getProviders, getSession } from "next-auth/react";
 import Spinner from "src/components/spinner";
+import Head from "next/head";
 
 import { trpc } from "src/utils/trpc";
 import Menu from "src/components/menu";
@@ -12,6 +13,9 @@ const ViewWorkouts = () => {
 
   return (
     <Menu>
+      <Head>
+        <title>Workouts</title>
+      </Head>
       <div className="container mx-auto p-4 flex flex-col gap-4">
         <h1 className="title-page">Workouts</h1>
         {isLoading && <Spinner />}

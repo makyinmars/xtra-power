@@ -66,7 +66,7 @@ const Menu = ({ children }: MenuProps) => {
             leaveFrom="transform opacity-100 scale-100"
             leaveTo="transform opacity-0 scale-95"
           >
-            <HeadlessMenu.Items className="absolute right-0 mt-2 w-full origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+            <HeadlessMenu.Items className="absolute right-0 mt-2 w-full origin-top-right divide-y divide-gray-100 rounded-md bg-stone-200 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
               <div className="px-1 py-1 ">
                 {items.map((item) => (
                   <HeadlessMenu.Item key={item.label}>

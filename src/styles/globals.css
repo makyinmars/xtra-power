@@ -10,11 +10,11 @@
 
 @layer components {
   .title-page {
-    @apply text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-500 to-slate-900 text-center mb-4;
+    @apply text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-500 to-slate-900 text-center;
   }
 
   .subtitle-page {
-    @apply text-2xl font-semibold  text-slate-700 text-center;
+    @apply text-xl font-semibold  text-slate-700 text-center;
   }
 
   .button {

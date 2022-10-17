@@ -40,11 +40,11 @@ const Workout = () => {
   return (
     <Menu>
       <div className="container mx-auto p-4">
-        <h1 className="title-page">Workout</h1>
+        <h1 className="title-page mb-4">Workout</h1>
         <div className="flex flex-col max-w-xl mx-auto gap-4">
           <form
             onSubmit={handleSubmit(onSubmit)}
-            className="flex flex-col gap-4 p-2 shadow-lg drop-shadow-lg bg-sky-500 rounded"
+            className="flex flex-col gap-4 p-2 shadow-lg drop-shadow-lg bg-stone-200 rounded"
           >
             <h2 className="subtitle-page">Create New Workout</h2>
             <input
@@ -69,7 +69,7 @@ const Workout = () => {
               </p>
             )}
             <button
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              className="button w-full"
               type="submit"
             >
               Submit

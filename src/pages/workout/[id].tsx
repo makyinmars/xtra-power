@@ -5,6 +5,7 @@ import { getProviders, getSession } from "next-auth/react";
 import { trpc } from "src/utils/trpc";
 import Spinner from "src/components/spinner";
 import Menu from "src/components/menu";
+import CreateExercise from "src/components/create-exercise";
 
 const WorkoutId = () => {
   const router = useRouter();
@@ -28,6 +29,7 @@ const WorkoutId = () => {
             <p className="text-center font-semibold text-lg">
               {data.description}
             </p>
+            <CreateExercise />
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {data.exercises.map((exercise) => (
                 <div
