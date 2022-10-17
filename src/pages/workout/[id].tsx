@@ -29,12 +29,12 @@ const WorkoutId = () => {
             <p className="text-center font-semibold text-lg">
               {data.description}
             </p>
-            <CreateExercise />
+            <CreateExercise workoutId={data.id} />
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {data.exercises.map((exercise) => (
                 <div
                   key={exercise.id}
-                  className="flex flex-col gap-4 p-4 border border-slate-400 rounded-md bg-slate-400 shadow-lg drop-shadow-lg"
+                  className="flex flex-col gap-4 p-4 border border-slate-200 rounded-md bg-stone-200 shadow-lg drop-shadow-lg"
                 >
                   <h2 className="subtitle-page">{exercise.name}</h2>
                   <p>{exercise.description}</p>

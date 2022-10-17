@@ -4,7 +4,7 @@
 
 @layer base {
   body {
-    @apply bg-sky-200 text-slate-800;
+    @apply bg-stone-100 text-slate-800;
   }
 }
 
@@ -14,7 +14,7 @@
   }
 
   .subtitle-page {
-    @apply text-xl font-semibold  text-slate-700 text-center;
+    @apply text-xl font-semibold text-slate-700 text-center;
   }
 
   .button {

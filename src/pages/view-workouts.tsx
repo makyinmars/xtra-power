@@ -14,7 +14,7 @@ const ViewWorkouts = () => {
   return (
     <Menu>
       <Head>
-        <title>Workouts</title>
+        <title>View Workouts</title>
       </Head>
       <div className="container mx-auto p-4 flex flex-col gap-4">
         <h1 className="title-page">Workouts</h1>
@@ -29,7 +29,7 @@ const ViewWorkouts = () => {
             data.map((workout, i) => (
               <div
                 key={i}
-                className="flex flex-col gap-4 p-2 shadow-lg drop-shadow-lg bg-sky-500 rounded cursor-pointer"
+                className="flex flex-col gap-1 p-2 shadow-lg drop-shadow-lg bg-sky-500 rounded cursor-pointer hover:bg-sky-600"
                 onClick={() => router.push(`/workout/${workout.id}`)}
               >
                 <h2 className="subtitle-page">{workout.name}</h2>

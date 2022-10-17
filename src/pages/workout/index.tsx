@@ -1,4 +1,5 @@
 import type { GetServerSideProps } from "next";
+import Head from "next/head";
 import { getProviders, getSession } from "next-auth/react";
 import { useRouter } from "next/router";
 
@@ -10,6 +11,9 @@ const Workout = () => {
 
   return (
     <Menu>
+      <Head>
+        <title>Workout</title>
+      </Head>
       <div className="container mx-auto p-4">
         <h1 className="title-page mb-4">Workout</h1>
         <div className="flex flex-col max-w-xl mx-auto gap-4">
