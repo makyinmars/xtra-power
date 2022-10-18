@@ -7,6 +7,8 @@ import { trpc } from "src/utils/trpc";
 import Spinner from "src/components/spinner";
 import Menu from "src/components/menu";
 import CreateExercise from "src/components/create-exercise";
+import CreateSet from "src/components/create-set";
+import Sets from "src/components/sets";
 
 const WorkoutId = () => {
   const router = useRouter();
@@ -34,7 +36,7 @@ const WorkoutId = () => {
               {data.description}
             </p>
             <CreateExercise workoutId={data.id} />
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {data.exercises.map((exercise) => (
                 <div
                   key={exercise.id}
@@ -42,6 +44,8 @@ const WorkoutId = () => {
                 >
                   <h2 className="subtitle-page">{exercise.name}</h2>
                   <p>{exercise.description}</p>
+                  <Sets exerciseId={data.id} />
+                  <CreateSet exerciseId={data.id} />
                 </div>
               ))}
             </div>

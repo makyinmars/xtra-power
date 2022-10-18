@@ -43,6 +43,10 @@ model Session {
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Trainer      Trainer? @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  trainerId    String?
+  Client       Client?  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId     String?
 }
 
 model User {
@@ -50,12 +54,30 @@ model User {
   name          String?
   email         String?   @unique
   type          String?
-  trainerId     String?
-  clients       String[]
+  trainer       Trainer?
+  clients       Client[]
   emailVerified DateTime?
   image         String?
   accounts      Account[]
   sessions      Session[]
+  Workout       Workout[]
+}
+
+model Trainer {
+  id       String    @id @default(cuid())
+  userId   String    @unique
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clients  Client[]
+  sessions Session[]
+}
+
+model Client {
+  id        String    @id @default(cuid())
+  userId    String    @unique
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  trainer   Trainer   @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  trainerId String
+  sessions  Session[]
 }
 
 model VerificationToken {
@@ -71,6 +93,8 @@ model Workout {
   name        String
   description String
   exercises   Exercise[]
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 }

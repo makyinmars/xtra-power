@@ -35,8 +35,8 @@ const Home: NextPage = () => {
             <Image
               src={session.user?.image as string}
               alt={session.user?.name as string}
-              className="w-20 h-20 rounded-full mx-auto"
-              width={55}
+              className="w-10 h-10 rounded-full"
+              width={50}
               height={200}
               priority={true}
             />
