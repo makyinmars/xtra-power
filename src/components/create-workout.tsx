@@ -25,11 +25,11 @@ const CreateWorkout = () => {
   });
   const onSubmit: SubmitHandler<WorkoutInput> = async (data) => {
     try {
-      const newWorkout = await createWorkout.mutateAsync(data);
+      await createWorkout.mutateAsync(data);
 
-      if (newWorkout) {
-        router.push(`/workout/${newWorkout.id}`);
-      }
+      /* if (newWorkout) { */
+      /*   router.push(`/workout/${newWorkout.id}`); */
+      /* } */
     } catch { }
   };
   return (

@@ -33,7 +33,6 @@ export const userRouter = t.router({
         data: {
           name: name,
           email: email,
-          type: type,
         },
       });
 
@@ -43,20 +42,33 @@ export const userRouter = t.router({
   updateTypeUser: authedProcedure
     .input(
       z.object({
-        email: z.string(),
-        type: z.string(),
+        id: z.string(),
+        clientId: z.string().nullable(),
+        trainerId: z.string().nullable(),
       })
     )
-    .mutation(({ ctx, input: { email, type } }) => {
-      const updatedUser = ctx.prisma.user.update({
-        where: {
-          email,
-        },
-        data: {
-          type,
-        },
-      });
-      return updatedUser;
+    .mutation(({ ctx, input: { id, clientId, trainerId } }) => {
+      if (clientId) {
+        const updatedUser = ctx.prisma.user.update({
+          where: {
+            id,
+          },
+          data: {
+            clientId,
+          },
+        });
+        return updatedUser;
+      } else {
+        const updatedUser = ctx.prisma.user.update({
+          where: {
+            id,
+          },
+          data: {
+            trainerId,
+          },
+        });
+        return updatedUser;
+      }
     }),
   updateUser: authedProcedure
     .input(
@@ -73,7 +85,6 @@ export const userRouter = t.router({
         },
         data: {
           name,
-          type,
         },
       });
 

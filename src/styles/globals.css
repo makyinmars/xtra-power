@@ -18,7 +18,7 @@
   }
 
   .button {
-    @apply flex w-24 items-center shadow-lg drop-shadow-lg justify-center rounded-md border border-transparent bg-sky-800 text-slate-200 text-base hover:bg-sky-700 py-3 md:px-10 md:text-lg;
+    @apply flex w-24 items-center shadow-lg drop-shadow-lg justify-center rounded-md border border-transparent bg-sky-800 text-slate-200 text-base hover:bg-sky-700 p-3 md:px-10 md:text-lg;
   }
 
   .icon-menu {

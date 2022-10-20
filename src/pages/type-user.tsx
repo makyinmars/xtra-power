@@ -1,7 +1,7 @@
 import { Dialog, Transition, RadioGroup } from "@headlessui/react";
 import type { GetServerSideProps } from "next";
 import { getProviders, getSession } from "next-auth/react";
-import { Fragment, useState, useEffect } from "react";
+import { Fragment, useState } from "react";
 import { BsCheckLg } from "react-icons/bs";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
@@ -30,11 +30,17 @@ const TypeUser = () => {
 
   const email = session?.user?.email as string;
 
-  const { data, isLoading, isError } = trpc.user.getUserByEmail.useQuery({
+  const { data: userData } = trpc.user.getUserByEmail.useQuery({
     email,
   });
 
-  const updateTypeUser = trpc.user.updateTypeUser.useMutation({
+  const createClient = trpc.client.createClient.useMutation({
+    async onSuccess() {
+      await utils.user.getUserByEmail.invalidate();
+    },
+  });
+
+  const createTrainer = trpc.trainer.createTrainer.useMutation({
     async onSuccess() {
       await utils.user.getUserByEmail.invalidate();
     },
@@ -42,28 +48,35 @@ const TypeUser = () => {
 
   const handleUpdateTypeUser = async (type: string) => {
     try {
-      const data = {
-        email,
-        type,
-      };
-      const userUpdated = await updateTypeUser.mutateAsync(data);
+      if (userData) {
+        const { name, email, image, id } = userData;
 
-      if (userUpdated) {
-        setIsOpen(false);
-        router.push("/");
+        const data = {
+          name,
+          email,
+          image,
+          userId: id,
+        };
+        if (type === "Client") {
+          const newClient = await createClient.mutateAsync(data);
+          if (newClient) {
+            setIsOpen(false);
+            router.push("/");
+          }
+        } else {
+          const newTrainer = await createTrainer.mutateAsync(data);
+          if (newTrainer) {
+            setIsOpen(false);
+            router.push("/");
+          }
+        }
       }
-    } catch { }
+    } catch {}
   };
 
   const closeModal = () => {
     router.push("/");
   };
-
-  useEffect(() => {
-    if (data && data.type) {
-      router.push("/");
-    }
-  }, [router, data]);
 
   return (
     <>
@@ -109,12 +122,14 @@ const TypeUser = () => {
                               key={i}
                               value={user}
                               className={({ active, checked }) =>
-                                `${active
-                                  ? "ring-2 ring-white ring-opacity-60 ring-offset-2 ring-offset-sky-300"
-                                  : ""
+                                `${
+                                  active
+                                    ? "ring-2 ring-white ring-opacity-60 ring-offset-2 ring-offset-sky-300"
+                                    : ""
                                 }
-                  ${checked ? "bg-sky-300 bg-opacity-75 text-white" : "bg-white"
-                                }
+                  ${
+                    checked ? "bg-sky-300 bg-opacity-75 text-white" : "bg-white"
+                  }
                     relative flex cursor-pointer rounded-lg px-5 py-4 shadow-md focus:outline-none`
                               }
                             >
@@ -125,19 +140,21 @@ const TypeUser = () => {
                                       <div className="text-sm">
                                         <RadioGroup.Label
                                           as="p"
-                                          className={`font-medium text-xl ${checked
+                                          className={`font-medium text-xl ${
+                                            checked
                                               ? "text-slate-900"
                                               : "text-slate-900"
-                                            }`}
+                                          }`}
                                         >
                                           {user.type}
                                         </RadioGroup.Label>
                                         <RadioGroup.Description
                                           as="span"
-                                          className={`inline text-lg ${checked
+                                          className={`inline text-lg ${
+                                            checked
                                               ? "text-slate-900"
                                               : "text-gray-500"
-                                            }`}
+                                          }`}
                                         >
                                           <span>{user.description}</span>
                                         </RadioGroup.Description>
@@ -183,13 +200,13 @@ export default TypeUser;
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await getSession(context);
 
-  const user = await prisma?.user.findUnique({
+  const user = (await prisma?.user.findUnique({
     where: {
-      email: session?.user?.email  as string | undefined
-    }
-  }) as User
+      email: session?.user?.email as string | undefined,
+    },
+  })) as User;
 
-  if(user.type){
+  if (user.trainerId || user.clientId) {
     return {
       redirect: {
         destination: "/",

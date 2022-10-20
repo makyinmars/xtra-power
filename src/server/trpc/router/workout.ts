@@ -48,11 +48,6 @@ export const workoutRouter = t.router({
   createWorkout: authedProcedure
     .input(z.object({ name: z.string(), description: z.string() }))
     .mutation(({ ctx, input }) => {
-      return ctx.prisma.workout.create({
-        data: {
-          name: input.name,
-          description: input.description,
-        },
-      });
+      // return ctx.prisma.workout.create({});
     }),
 });
