@@ -10,8 +10,14 @@ import {
 } from "next-auth/react";
 import Link from "next/link";
 
+import { trpc } from "src/utils/trpc";
+
 const Home: NextPage = () => {
   const { data: session } = useSession();
+
+  const { data: user } = trpc.user.getUserByEmail.useQuery({
+    email: session?.user?.email as string | null,
+  });
 
   return (
     <>
@@ -32,26 +38,33 @@ const Home: NextPage = () => {
             <h2 className="text-xl text-slate-900 text-center">
               Signed in as {session.user?.name}
             </h2>
-            <Image
-              src={session.user?.image as string}
-              alt={session.user?.name as string}
-              className="w-10 h-10 rounded-full"
-              width={50}
-              height={200}
-              priority={true}
-            />
+            <div className="self-center w-40 h-40">
+              <Image
+                src={session.user?.image as string}
+                alt={session.user?.name as string}
+                className="rounded-full mx-auto "
+                width={200}
+                height={200}
+                priority={true}
+              />
+            </div>
             <div className="flex justify-center">
               <button className="button w-full" onClick={() => signOut()}>
                 Sign out
               </button>
             </div>
-            <div className="flex justify-around gap-4">
+            <div className="flex flex-col items-center justify-around gap-4">
               <Link href="/user">
-                <button className="button">User</button>
+                <button className="button w-full">User</button>
               </Link>
               <Link href="/workout">
-                <button className="button">Workout</button>
+                <button className="button w-full">Workout</button>
               </Link>
+              {user && user.clientId && (
+                <Link href="/select-trainer">
+                  <button className="button w-full">Select Trainer</button>
+                </Link>
+              )}
             </div>
           </div>
         ) : (

@@ -41,4 +41,14 @@ export const trainerRouter = t.router({
         return trainer;
       }
     }),
+
+  getTrainers: authedProcedure.query(async ({ ctx }) => {
+    const trainers = await ctx.prisma.trainer.findMany({
+      include: {
+        user: true,
+      },
+    });
+
+    return trainers;
+  }),
 });

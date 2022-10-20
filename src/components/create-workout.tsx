@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import { trpc } from "src/utils/trpc";
 
 interface WorkoutInput {
+  userId: string;
   name: string;
   description: string;
 }
@@ -23,13 +24,14 @@ const CreateWorkout = () => {
       await utils.workout.getWorkoutById.invalidate();
     },
   });
+
   const onSubmit: SubmitHandler<WorkoutInput> = async (data) => {
     try {
-      await createWorkout.mutateAsync(data);
+      const newWorkout = await createWorkout.mutateAsync(data);
 
-      /* if (newWorkout) { */
-      /*   router.push(`/workout/${newWorkout.id}`); */
-      /* } */
+      if (newWorkout) {
+        router.push(`/workout/${newWorkout.id}`);
+      }
     } catch { }
   };
   return (
