@@ -1,7 +1,8 @@
 import { Dialog, Transition, RadioGroup } from "@headlessui/react";
 import type { GetServerSideProps } from "next";
+import { useQueryClient } from "@tanstack/react-query";
 import { getProviders, getSession } from "next-auth/react";
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { BsCheckLg } from "react-icons/bs";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
@@ -27,6 +28,10 @@ const TypeUser = () => {
   const { data: session } = useSession();
 
   const utils = trpc.useContext();
+
+  const queryClient = useQueryClient();
+
+  console.log("client", queryClient);
 
   const email = session?.user?.email as string;
 
@@ -77,6 +82,12 @@ const TypeUser = () => {
   const closeModal = () => {
     router.push("/");
   };
+
+  useEffect(() => {
+    if (userData?.clientId || userData?.trainerId) {
+      router.push("/");
+    }
+  }, [router, userData]);
 
   return (
     <>
@@ -205,8 +216,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       email: session?.user?.email as string | undefined,
     },
   })) as User;
-
-  console.log("User", user);
 
   if (user.trainerId || user.clientId) {
     return {
