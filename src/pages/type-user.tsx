@@ -208,37 +208,37 @@ const TypeUser = () => {
 
 export default TypeUser;
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const session = await getSession(context);
+// export const getServerSideProps: GetServerSideProps = async (context) => {
+//   const session = await getSession(context);
 
-  const user = (await prisma?.user.findUnique({
-    where: {
-      email: session?.user?.email as string | undefined,
-    },
-  })) as User;
+//   const user = (await prisma?.user.findUnique({
+//     where: {
+//       email: session?.user?.email as string | undefined,
+//     },
+//   })) as User;
 
-  if (user.trainerId || user.clientId) {
-    return {
-      redirect: {
-        destination: "/",
-        permanent: false,
-      },
-    };
-  }
+//   if (user.trainerId || user.clientId) {
+//     return {
+//       redirect: {
+//         destination: "/",
+//         permanent: false,
+//       },
+//     };
+//   }
 
-  if (!session) {
-    return {
-      redirect: {
-        destination: "/",
-        permanent: false,
-      },
-    };
-  }
+//   if (!session) {
+//     return {
+//       redirect: {
+//         destination: "/",
+//         permanent: false,
+//       },
+//     };
+//   }
 
-  const providers = await getProviders();
-  return {
-    props: {
-      providers,
-    },
-  };
-};
+//   const providers = await getProviders();
+//   return {
+//     props: {
+//       providers,
+//     },
+//   };
+// };
