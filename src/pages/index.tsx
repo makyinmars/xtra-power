@@ -1,17 +1,12 @@
-import type { NextPage, GetServerSideProps } from "next";
+import type { NextPage } from "next";
+import { FaDiscord } from "react-icons/fa";
+import { FcGoogle } from "react-icons/fc";
 import Image from "next/image";
 import Head from "next/head";
-import {
-  signIn,
-  signOut,
-  useSession,
-  getProviders,
-  getSession,
-} from "next-auth/react";
+import { signIn, signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 
 import { trpc } from "src/utils/trpc";
-
 const Home: NextPage = () => {
   const { data: session } = useSession();
 
@@ -62,13 +57,21 @@ const Home: NextPage = () => {
               </Link>
               {user && user.clientId && (
                 <Link href="/select-trainer">
-                  <button className="button w-full">Select Trainer</button>
+                  <button
+                    className="button w-full"
+                    onClick={() => console.log("Hello")}
+                  >
+                    Select Trainer
+                  </button>
                 </Link>
               )}
             </div>
           </div>
         ) : (
-          <div>
+          <div className="grid grid-cols-2 gap-4">
+            <h2 className="col-span-2 text-center subtitle-page">
+              Sign in with
+            </h2>
             <button
               className="button w-full"
               onClick={() =>
@@ -77,7 +80,17 @@ const Home: NextPage = () => {
                 })
               }
             >
-              Sign in
+              <FaDiscord className="icon-menu text-purple-400" />
+            </button>
+            <button
+              className="button w-full"
+              onClick={() =>
+                signIn("google", {
+                  callbackUrl: `/type-user`,
+                })
+              }
+            >
+              <FcGoogle className="icon-menu" />
             </button>
           </div>
         )}
@@ -87,23 +100,3 @@ const Home: NextPage = () => {
 };
 
 export default Home;
-
-/* export const getServerSideProps: GetServerSideProps = async (context) => { */
-/*   const session = await getSession(context); */
-/**/
-/*   if (!session) { */
-/*     return { */
-/*       redirect: { */
-/*         destination: "/", */
-/*         permanent: false, */
-/*       }, */
-/*     }; */
-/*   } */
-/**/
-/*   const providers = await getProviders(); */
-/*   return { */
-/*     props: { */
-/*       providers, */
-/*     }, */
-/*   }; */
-/* }; */

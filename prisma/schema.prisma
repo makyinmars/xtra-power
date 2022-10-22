@@ -53,7 +53,6 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
-  workout       Workout[]
   trainer       Trainer?  @relation(fields: [trainerId], references: [id])
   trainerId     String?   @unique
   client        Client?   @relation(fields: [clientId], references: [id])
@@ -95,8 +94,6 @@ model Workout {
   name        String
   description String
   exercises   Exercise[]
-  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      String
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
   client      Client?    @relation(fields: [clientId], references: [id])

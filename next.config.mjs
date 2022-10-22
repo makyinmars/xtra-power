@@ -22,6 +22,6 @@ export default defineNextConfig({
     defaultLocale: "en",
   },
   images: {
-    domains: ["icons8.com", "cdn.discordapp.com"]
-  }
+    domains: ["icons8.com", "cdn.discordapp.com", "lh3.googleusercontent.com"],
+  },
 });

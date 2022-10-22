@@ -1,10 +1,12 @@
 import { useForm, SubmitHandler } from "react-hook-form";
+import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/router";
 
 import { trpc } from "src/utils/trpc";
+import { useSession } from "next-auth/react";
 
 interface WorkoutInput {
-  userId: string;
+  clientId: string;
   name: string;
   description: string;
 }
@@ -16,8 +18,25 @@ const CreateWorkout = () => {
     formState: { errors },
   } = useForm<WorkoutInput>();
 
+  // const { data: session } = useSession();
+
+  // const { data: user } = trpc.user.getUserByEmail.useQuery({
+  //   email: session?.user?.email as string | null,
+  // });
+
+  const queryClient = useQueryClient();
+
+  console.log("queryClient", queryClient);
+
   const router = useRouter();
   const utils = trpc.useContext();
+
+  const user = utils.user.getUserByEmail.getInfiniteData({
+    email: "",
+  });
+
+  console.log("User", user);
+
   const createWorkout = trpc.workout.createWorkout.useMutation({
     async onSuccess() {
       await utils.workout.getWorkouts.invalidate();
@@ -27,12 +46,13 @@ const CreateWorkout = () => {
 
   const onSubmit: SubmitHandler<WorkoutInput> = async (data) => {
     try {
+      // data.clientId = user?.clientId as string;
       const newWorkout = await createWorkout.mutateAsync(data);
-
+      console.log(newWorkout);
       if (newWorkout) {
         router.push(`/workout/${newWorkout.id}`);
       }
-    } catch { }
+    } catch {}
   };
   return (
     <>

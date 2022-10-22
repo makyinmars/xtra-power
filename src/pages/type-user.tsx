@@ -206,6 +206,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     },
   })) as User;
 
+  console.log("User", user);
+
   if (user.trainerId || user.clientId) {
     return {
       redirect: {
