@@ -84,10 +84,13 @@ const TypeUser = () => {
   };
 
   useEffect(() => {
+    if (!session) {
+      router.push("/");
+    }
     if (userData?.clientId || userData?.trainerId) {
       router.push("/");
     }
-  }, [router, userData]);
+  }, [router, userData, session]);
 
   return (
     <>
