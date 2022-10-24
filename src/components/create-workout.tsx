@@ -26,7 +26,7 @@ const CreateWorkout = () => {
 
   const queryClient = useQueryClient();
 
-  console.log("queryClient", queryClient);
+  console.log("queryClient, Need to use cache here", queryClient);
 
   const router = useRouter();
   const utils = trpc.useContext();
