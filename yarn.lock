@@ -772,17 +772,17 @@
   dependencies:
     tslib "^2.4.0"
 
-"@tanstack/query-core@4.12.0":
-  version "4.12.0"
-  resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-4.12.0.tgz#0e96adcfe182efc4ea4c21802f7596d56c6cd60a"
-  integrity sha512-KEiFPNLMFByhNL2s6RBFL6Z5cNdwwQzFpW/II3GY+rEuQ343ZEoVyQ48zlUXXkEkbamQFIFg2onM8Pxf0Yo01A==
+"@tanstack/query-core@4.13.0":
+  version "4.13.0"
+  resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-4.13.0.tgz#89153096d1fce42c0294fa1d1ae4b3e72aa5353b"
+  integrity sha512-PzmLQcEgC4rl2OzkiPHYPC9O79DFcMGaKsOzDEP+U4PJ+tbkcEP+Z+FQDlfvX8mCwYC7UNH7hXrQ5EdkGlJjVg==
 
-"@tanstack/react-query@^4.3.9":
-  version "4.12.0"
-  resolved "https://registry.yarnpkg.com/@tanstack/react-query/-/react-query-4.12.0.tgz#2cb233ef1ccf7537aeed61ca171fc3dcc52d9c57"
-  integrity sha512-prchV1q+CJ0ZVo8Rts2cOF3azDfQizZZySmH6XXsXRcPTbir0sgb9fp0vY/5l5ZkSYjTvWt/OL8WQhAhYMSvrA==
+"@tanstack/react-query@^4.13.0":
+  version "4.13.0"
+  resolved "https://registry.yarnpkg.com/@tanstack/react-query/-/react-query-4.13.0.tgz#13797d590a6c0708545881e38aea5eb39b960c28"
+  integrity sha512-dI/5hJ/pGQ74P5hxBLC9h6K0/Cap2T3k0ZjjjFLBCNnohDYgl7LNmMopzrRzBHk2mMjf2hgXHIzcKNG8GOZ5hg==
   dependencies:
-    "@tanstack/query-core" "4.12.0"
+    "@tanstack/query-core" "4.13.0"
     use-sync-external-store "^1.2.0"
 
 "@tootallnate/once@1":
@@ -4653,10 +4653,10 @@ typedarray-to-buffer@^3.1.5:
   dependencies:
     is-typedarray "^1.0.0"
 
-typescript@4.7.4:
-  version "4.7.4"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.7.4.tgz#1a88596d1cf47d59507a1bcdfb5b9dfe4d488235"
-  integrity sha512-C0WQT0gezHuw6AdY1M2jxUO83Rjf0HP7Sk1DtXj6j1EwkQNZrHAg2XPWlq62oqEhYvONq5pkC2Y9oPljWToLmQ==
+typescript@4.8.4:
+  version "4.8.4"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.8.4.tgz#c464abca159669597be5f96b8943500b238e60e6"
+  integrity sha512-QCh+85mCy+h0IGff8r5XWzOVSbBO+KfeYrMQh7NJ58QujwcE22u+NUSmUxqF+un70P9GXKxa2HCNiTTMJknyjQ==
 
 unbox-primitive@^1.0.2:
   version "1.0.2"
