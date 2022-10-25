@@ -6,9 +6,12 @@ import Menu from "src/components/menu";
 import Spinner from "src/components/spinner";
 import { trpc } from "src/utils/trpc";
 
-const SelectTrainer = ({providers, user}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-  console.log("provider", providers)
-  console.log("user", user)
+const SelectTrainer = ({
+  providers,
+  user,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
+  console.log("provider", providers);
+  console.log("user", user);
   const { data, isLoading, isError } = trpc.trainer.getTrainers.useQuery();
 
   return (
@@ -43,7 +46,10 @@ const SelectTrainer = ({providers, user}: InferGetServerSidePropsType<typeof get
 export default SelectTrainer;
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
+  console.log("context", context);
   const session = await getSession(context);
+
+  let user;
 
   if (!session) {
     return {
@@ -52,28 +58,28 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         permanent: false,
       },
     };
-  }
-
-  const user = (await prisma?.user.findUnique({
-    where: {
-      email: session?.user?.email as string | undefined,
-    },
-  }));
-
-  if (!user?.clientId) {
-    return {
-      redirect: {
-        destination: "/",
-        permanent: false,
+  } else {
+    user = await prisma?.user.findUnique({
+      where: {
+        email: session.user?.email as string,
       },
-    };
+    });
+
+    if (!user?.clientId) {
+      return {
+        redirect: {
+          destination: "/",
+          permanent: false,
+        },
+      };
+    }
   }
 
   const providers = await getProviders();
   return {
     props: {
       providers,
-      user
+      user,
     },
   };
 };

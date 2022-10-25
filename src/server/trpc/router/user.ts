@@ -5,12 +5,12 @@ export const userRouter = t.router({
   getUserByEmail: authedProcedure
     .input(
       z.object({
-        email: z.string().nullable(),
+        email: z.string(),
       })
     )
     .query(({ ctx, input: { email } }) => {
       if (email) {
-        const user = ctx.prisma.user.findUniqueOrThrow({
+        const user = ctx.prisma.user.findUnique({
           where: {
             email: email,
           },

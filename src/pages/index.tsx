@@ -11,7 +11,7 @@ const Home: NextPage = () => {
   const { data: session } = useSession();
 
   const { data: user } = trpc.user.getUserByEmail.useQuery({
-    email: session?.user?.email as string | null,
+    email: session ? (session.user?.email as string) : "nice try",
   });
 
   return (
