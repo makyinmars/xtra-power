@@ -24,18 +24,8 @@ const CreateWorkout = () => {
   //   email: session?.user?.email as string | null,
   // });
 
-  const queryClient = useQueryClient();
-
-  console.log("queryClient, Need to use cache here", queryClient);
-
   const router = useRouter();
   const utils = trpc.useContext();
-
-  const user = utils.user.getUserByEmail.getInfiniteData({
-    email: "",
-  });
-
-  console.log("User", user);
 
   const createWorkout = trpc.workout.createWorkout.useMutation({
     async onSuccess() {

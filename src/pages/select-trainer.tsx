@@ -1,5 +1,4 @@
 import { getProviders, getSession } from "next-auth/react";
-import { User } from "@prisma/client";
 import Head from "next/head";
 import type { GetServerSideProps } from "next";
 
@@ -48,9 +47,9 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     where: {
       email: session?.user?.email as string | undefined,
     },
-  })) as User;
+  }));
 
-  if (!user.clientId) {
+  if (!user?.clientId) {
     return {
       redirect: {
         destination: "/",
