@@ -1,12 +1,14 @@
 import { getProviders, getSession } from "next-auth/react";
 import Head from "next/head";
-import type { GetServerSideProps } from "next";
+import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
 
 import Menu from "src/components/menu";
 import Spinner from "src/components/spinner";
 import { trpc } from "src/utils/trpc";
 
-const SelectTrainer = () => {
+const SelectTrainer = ({providers, user}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
+  console.log("provider", providers)
+  console.log("user", user)
   const { data, isLoading, isError } = trpc.trainer.getTrainers.useQuery();
 
   return (
@@ -43,6 +45,15 @@ export default SelectTrainer;
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await getSession(context);
 
+  if (!session) {
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false,
+      },
+    };
+  }
+
   const user = (await prisma?.user.findUnique({
     where: {
       email: session?.user?.email as string | undefined,
@@ -58,19 +69,11 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     };
   }
 
-  if (!session) {
-    return {
-      redirect: {
-        destination: "/",
-        permanent: false,
-      },
-    };
-  }
-
   const providers = await getProviders();
   return {
     props: {
       providers,
+      user
     },
   };
 };
