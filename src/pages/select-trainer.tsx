@@ -1,18 +1,34 @@
-import { getProviders, getSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/router";
 import Head from "next/head";
-import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
+import { useEffect } from "react";
 
 import Menu from "src/components/menu";
 import Spinner from "src/components/spinner";
 import { trpc } from "src/utils/trpc";
 
-const SelectTrainer = ({
-  providers,
-  user,
-}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-  console.log("provider", providers);
-  console.log("user", user);
+const SelectTrainer = () => {
+  const { data: session } = useSession();
+
+  const router = useRouter();
+
   const { data, isLoading, isError } = trpc.trainer.getTrainers.useQuery();
+
+  const utils = trpc.useContext();
+
+  const user = utils.user.getUserByEmail.getData({
+    email: session ? (session.user?.email as string) : "nice try",
+  });
+
+  useEffect(() => {
+    if (user) {
+      if (user.trainerId) {
+        router.push("/");
+      }
+    } else {
+      router.push("/");
+    }
+  }, [router, user]);
 
   return (
     <Menu>
@@ -20,6 +36,7 @@ const SelectTrainer = ({
         <title>Select Trainer</title>
       </Head>
       <div className="container mx-auto flex flex-col gap-4">
+        <h1 className="title-page">View Trainer</h1>
         {isLoading && <Spinner />}
         {isError && (
           <p className="text-center font-bold text-red-400 text-lg">
@@ -44,42 +61,3 @@ const SelectTrainer = ({
 };
 
 export default SelectTrainer;
-
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  console.log("context", context);
-  const session = await getSession(context);
-
-  let user;
-
-  if (!session) {
-    return {
-      redirect: {
-        destination: "/",
-        permanent: false,
-      },
-    };
-  } else {
-    user = await prisma?.user.findUnique({
-      where: {
-        email: session.user?.email as string,
-      },
-    });
-
-    if (!user?.clientId) {
-      return {
-        redirect: {
-          destination: "/",
-          permanent: false,
-        },
-      };
-    }
-  }
-
-  const providers = await getProviders();
-  return {
-    props: {
-      providers,
-      user,
-    },
-  };
-};

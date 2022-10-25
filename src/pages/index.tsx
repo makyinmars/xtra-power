@@ -7,6 +7,7 @@ import { signIn, signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 
 import { trpc } from "src/utils/trpc";
+
 const Home: NextPage = () => {
   const { data: session } = useSession();
 
@@ -45,24 +46,27 @@ const Home: NextPage = () => {
             </div>
             <div className="flex justify-center">
               <button className="button w-full" onClick={() => signOut()}>
-                Sign out
+                Sign Out
               </button>
             </div>
             <div className="flex flex-col items-center justify-around gap-4">
               <Link href="/user">
-                <button className="button w-full">User</button>
-              </Link>
-              <Link href="/workout">
-                <button className="button w-full">Workout</button>
+                <button className="button w-full">
+                  {user?.clientId ? "User" : "Trainer"}
+                </button>
               </Link>
               {user && user.clientId && (
+                <Link href="/workout">
+                  <button className="button w-full">Workout</button>
+                </Link>
+              )}
+              {user && user.clientId ? (
                 <Link href="/select-trainer">
-                  <button
-                    className="button w-full"
-                    onClick={() => console.log("Hello")}
-                  >
-                    Select Trainer
-                  </button>
+                  <button className="button w-full">Select Trainer</button>
+                </Link>
+              ) : (
+                <Link href="/view-clients">
+                  <button className="button w-full">View Clients</button>
                 </Link>
               )}
             </div>

@@ -1,17 +1,31 @@
-import type { GetServerSideProps } from "next";
+import { useEffect } from "react";
+import { useSession } from "next-auth/react";
 import Head from "next/head";
-import { useQueryClient } from "@tanstack/react-query";
-import { getProviders, getSession, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 
 import Menu from "src/components/menu";
 import CreateWorkout from "src/components/create-workout";
-import { useEffect } from "react";
+import { trpc } from "src/utils/trpc";
 
 const Workout = () => {
   const router = useRouter();
+  const { data: session } = useSession();
 
-  const {data: session} = useSession()
+  const utils = trpc.useContext();
+
+  const user = utils.user.getUserByEmail.getData({
+    email: session ? (session.user?.email as string) : "nice try",
+  });
+
+  useEffect(() => {
+    if (user) {
+      if (user.trainerId) {
+        router.push("/");
+      }
+    } else {
+      router.push("/");
+    }
+  }, [router, user]);
 
   return (
     <Menu>

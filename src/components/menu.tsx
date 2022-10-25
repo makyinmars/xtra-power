@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Menu as HeadlessMenu, Transition } from "@headlessui/react";
-import { Fragment } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { FcHome } from "react-icons/fc";
 import { IoIosFitness } from "react-icons/io";
 import { FaUserCircle } from "react-icons/fa";
@@ -8,29 +8,22 @@ import { BiLogOut } from "react-icons/bi";
 import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 
+import { trpc } from "src/utils/trpc";
+
 interface MenuProps {
   children: React.ReactNode;
 }
 
 const Menu = ({ children }: MenuProps) => {
   const { data: session } = useSession();
-  const items = [
-    {
-      label: "Workout",
-      href: "/workout",
-      icon: <IoIosFitness className="icon-menu" />,
-    },
-    {
-      label: "User",
-      href: "/user",
-      icon: <FaUserCircle className="icon-menu" />,
-    },
-    {
-      label: "Logout",
-      href: "/logout",
-      icon: <BiLogOut className="icon-menu" />,
-    },
-  ];
+  const utils = trpc.useContext();
+  const user = utils.user.getUserByEmail.getData({
+    email: session ? (session.user?.email as string) : "nice try",
+  });
+
+  const [items, setItems] = useState(
+    user?.clientId ? clientItems : trainerItems
+  );
 
   return (
     <div className="container mx-auto p-4">
@@ -110,3 +103,34 @@ const Menu = ({ children }: MenuProps) => {
 };
 
 export default Menu;
+
+const clientItems = [
+  {
+    label: "Workout",
+    href: "/workout",
+    icon: <IoIosFitness className="icon-menu" />,
+  },
+  {
+    label: "User",
+    href: "/user",
+    icon: <FaUserCircle className="icon-menu" />,
+  },
+  {
+    label: "Logout",
+    href: "/logout",
+    icon: <BiLogOut className="icon-menu" />,
+  },
+];
+
+const trainerItems = [
+  {
+    label: "Trainer",
+    href: "/user",
+    icon: <FaUserCircle className="icon-menu" />,
+  },
+  {
+    label: "Logout",
+    href: "/logout",
+    icon: <BiLogOut className="icon-menu" />,
+  },
+];
