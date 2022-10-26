@@ -1,5 +1,9 @@
 # Create T3 App
 
+# App for TDD Learning Purposes
+
+- Check `/src/test/` to learn more about TDD specifically using tRPC and Jest integration.
+
 This is an app bootstrapped according to the [init.tips](https://init.tips) stack, also known as the T3-Stack.
 
 ## Why are there `.js` files in here?
