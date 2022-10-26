@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Menu as HeadlessMenu, Transition } from "@headlessui/react";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useState } from "react";
 import { FcHome } from "react-icons/fc";
 import { IoIosFitness } from "react-icons/io";
 import { FaUserCircle } from "react-icons/fa";
@@ -66,7 +66,7 @@ const Menu = ({ children }: MenuProps) => {
                   <HeadlessMenu.Item key={item.label}>
                     {({ active }) => (
                       <div
-                        className={`${active ? "bg-cyan-700 text-white" : "text-gray-900"
+                        className={`${active ? "bg-gray-600 text-white" : "text-gray-900"
                           } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
                       >
                         {item.label === "Logout" ? (

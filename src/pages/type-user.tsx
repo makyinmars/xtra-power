@@ -5,6 +5,7 @@ import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
 
 import { trpc } from "src/utils/trpc";
+import Head from "next/head";
 
 const users = [
   {
@@ -86,6 +87,9 @@ const TypeUser = () => {
 
   return (
     <>
+      <Head>
+        <title>Type of User</title>
+      </Head>
       <Transition appear show={isOpen} as={Fragment}>
         <Dialog as="div" className="relative z-10" onClose={closeModal}>
           <Transition.Child

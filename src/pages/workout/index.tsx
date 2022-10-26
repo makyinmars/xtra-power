@@ -35,7 +35,11 @@ const Workout = () => {
       <div className="container mx-auto p-4">
         <h1 className="title-page mb-4">Workout</h1>
         <div className="flex flex-col max-w-xl mx-auto gap-4">
-          <CreateWorkout />
+          {user && (
+            <CreateWorkout
+              clientId={user ? (user.clientId as string) : "nice try"}
+            />
+          )}
           <div className="flex justify-center">
             <button
               className="button w-full"

@@ -1,15 +1,32 @@
+import { useEffect } from "react";
 import { useRouter } from "next/router";
-import type { GetServerSideProps } from "next";
-import { getProviders, getSession } from "next-auth/react";
-import Spinner from "src/components/spinner";
+import { useSession } from "next-auth/react";
 import Head from "next/head";
 
+import Spinner from "src/components/spinner";
 import { trpc } from "src/utils/trpc";
 import Menu from "src/components/menu";
 
 const ViewWorkouts = () => {
   const router = useRouter();
+  const { data: session } = useSession();
+  const utils = trpc.useContext();
+
   const { data, isError, isLoading } = trpc.workout.getWorkouts.useQuery();
+
+  const user = utils.user.getUserByEmail.getData({
+    email: session ? (session.user?.email as string) : "nice try",
+  });
+
+  useEffect(() => {
+    if (user) {
+      if (user?.trainerId) {
+        router.push("/");
+      }
+    } else {
+      router.push("/");
+    }
+  }, [router, user]);
 
   return (
     <Menu>
@@ -43,23 +60,3 @@ const ViewWorkouts = () => {
 };
 
 export default ViewWorkouts;
-
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const session = await getSession(context);
-
-  if (!session) {
-    return {
-      redirect: {
-        destination: "/",
-        permanent: false,
-      },
-    };
-  }
-
-  const providers = await getProviders();
-  return {
-    props: {
-      providers,
-    },
-  };
-};

@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
 import type { GetServerSideProps } from "next";
-import { getProviders, getSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import Head from "next/head";
 
 import { trpc } from "src/utils/trpc";
@@ -9,13 +9,30 @@ import Menu from "src/components/menu";
 import CreateExercise from "src/components/create-exercise";
 import CreateSet from "src/components/create-set";
 import Sets from "src/components/sets";
+import { useEffect } from "react";
 
 const WorkoutId = () => {
   const router = useRouter();
+  const utils = trpc.useContext();
+  const { data: session } = useSession();
   const id = router.query.id as string;
   const { data, isError, isLoading } = trpc.workout.getWorkoutById.useQuery({
     id,
   });
+
+  const user = utils.user.getUserByEmail.getData({
+    email: session ? (session.user?.email as string) : "nice try",
+  });
+
+  useEffect(() => {
+    if (user) {
+      if (user?.trainerId) {
+        router.push("/");
+      }
+    } else {
+      router.push("/");
+    }
+  }, [router, user]);
 
   return (
     <Menu>
@@ -44,8 +61,8 @@ const WorkoutId = () => {
                 >
                   <h2 className="subtitle-page">{exercise.name}</h2>
                   <p>{exercise.description}</p>
-                  <Sets exerciseId={data.id} />
-                  <CreateSet exerciseId={data.id} />
+                  <Sets exerciseId={exercise.id} />
+                  <CreateSet exerciseId={exercise.id} />
                 </div>
               ))}
             </div>
@@ -57,23 +74,3 @@ const WorkoutId = () => {
 };
 
 export default WorkoutId;
-
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const session = await getSession(context);
-
-  if (!session) {
-    return {
-      redirect: {
-        destination: "/",
-        permanent: false,
-      },
-    };
-  }
-
-  const providers = await getProviders();
-  return {
-    props: {
-      providers,
-    },
-  };
-};

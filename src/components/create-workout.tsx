@@ -1,9 +1,11 @@
 import { useForm, SubmitHandler } from "react-hook-form";
-import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/router";
 
 import { trpc } from "src/utils/trpc";
-import { useSession } from "next-auth/react";
+
+interface CWProps {
+  clientId: string;
+}
 
 interface WorkoutInput {
   clientId: string;
@@ -11,18 +13,12 @@ interface WorkoutInput {
   description: string;
 }
 
-const CreateWorkout = () => {
+const CreateWorkout = ({ clientId }: CWProps) => {
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<WorkoutInput>();
-
-  // const { data: session } = useSession();
-
-  // const { data: user } = trpc.user.getUserByEmail.useQuery({
-  //   email: session?.user?.email as string | null,
-  // });
 
   const router = useRouter();
   const utils = trpc.useContext();
@@ -36,13 +32,12 @@ const CreateWorkout = () => {
 
   const onSubmit: SubmitHandler<WorkoutInput> = async (data) => {
     try {
-      // data.clientId = user?.clientId as string;
+      data.clientId = clientId;
       const newWorkout = await createWorkout.mutateAsync(data);
-      console.log(newWorkout);
       if (newWorkout) {
         router.push(`/workout/${newWorkout.id}`);
       }
-    } catch {}
+    } catch { }
   };
   return (
     <>

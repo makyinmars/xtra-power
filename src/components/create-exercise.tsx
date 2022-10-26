@@ -30,7 +30,8 @@ const CreateExercise = ({ workoutId }: CEProps) => {
   const onSubmit: SubmitHandler<ExerciseInput> = async (data) => {
     try {
       data.workoutId = workoutId;
-      await createExercise.mutateAsync(data);
+      const newExercise = await createExercise.mutateAsync(data);
+      console.log("NEW Exercise", newExercise);
     } catch { }
   };
   return (
@@ -39,7 +40,7 @@ const CreateExercise = ({ workoutId }: CEProps) => {
         onSubmit={handleSubmit(onSubmit)}
         className="flex flex-col gap-4 p-2 shadow-lg drop-shadow-lg rounded bg-stone-200"
       >
-        <h2 className="subtitle-page">Create New Exercise</h2>
+        <h2 className="subtitle-page">Add Exercise</h2>
         <input
           className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           type="text"

@@ -4,7 +4,7 @@
 
 @layer base {
   body {
-    @apply bg-stone-100 text-slate-800;
+    @apply bg-gradient-to-r from-stone-200 via-stone-400 to-stone-600 text-slate-800;
   }
 }
 
@@ -18,7 +18,7 @@
   }
 
   .button {
-    @apply flex w-24 items-center shadow-lg drop-shadow-lg justify-center rounded-md border border-transparent bg-sky-800 text-slate-200 text-base hover:bg-sky-700 p-3 md:px-10 md:text-lg;
+    @apply flex w-24 items-center shadow-lg drop-shadow-lg justify-center rounded-md border border-transparent bg-gray-700 text-slate-200 text-base hover:bg-gray-800 p-3 md:px-10 md:text-lg;
   }
 
   .icon-menu {

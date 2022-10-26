@@ -10,6 +10,8 @@ const Sets = ({ exerciseId }: SProps) => {
     exerciseId,
   });
 
+  console.log("SET", data)
+
   return (
     <div>
       {isLoading && <Spinner />}
