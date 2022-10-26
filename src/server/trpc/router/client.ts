@@ -42,4 +42,56 @@ export const clientRouter = t.router({
         return client;
       }
     }),
+
+  addTrainer: authedProcedure
+    .input(
+      z.object({
+        userId: z.string(),
+        trainerId: z.string(),
+      })
+    )
+    .mutation(({ ctx, input: { userId, trainerId } }) => {
+      const clientUpdate = ctx.prisma.client.update({
+        where: {
+          userId: userId,
+        },
+        data: {
+          trainerId: trainerId,
+        },
+      });
+
+      const trainerUpdate = ctx.prisma.trainer.update({
+        where: {
+          id: trainerId,
+        },
+        data: {
+          clients: {
+            connect: {
+              userId: userId,
+            },
+          },
+        },
+      });
+
+      return Promise.all([clientUpdate, trainerUpdate]);
+    }),
+
+  getTrainer: authedProcedure
+    .input(
+      z.object({
+        trainerId: z.string(),
+      })
+    )
+    .query(({ ctx, input: { trainerId } }) => {
+      const trainer = ctx.prisma.trainer.findUnique({
+        where: {
+          id: trainerId,
+        },
+        include: {
+          clients: true,
+        },
+      });
+
+      return trainer;
+    }),
 });

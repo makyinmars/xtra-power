@@ -61,7 +61,7 @@ const Home: NextPage = () => {
                 </Link>
               )}
               {user && user.clientId ? (
-                <Link href="/select-trainer">
+                <Link href="/view-trainers">
                   <button className="button w-full">Select Trainer</button>
                 </Link>
               ) : (

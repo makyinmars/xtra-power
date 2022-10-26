@@ -16,9 +16,22 @@ const SelectTrainer = () => {
 
   const utils = trpc.useContext();
 
+  const addTrainer = trpc.client.addTrainer.useMutation();
+
   const user = utils.user.getUserByEmail.getData({
     email: session ? (session.user?.email as string) : "nice try",
   });
+
+  const onTrainerSelect = async (trainerId: string) => {
+    try {
+      if (user) {
+        await addTrainer.mutateAsync({
+          userId: user.id as string,
+          trainerId,
+        });
+      }
+    } catch {}
+  };
 
   useEffect(() => {
     if (user) {
@@ -36,7 +49,7 @@ const SelectTrainer = () => {
         <title>Select Trainer</title>
       </Head>
       <div className="container mx-auto flex flex-col gap-4">
-        <h1 className="title-page">View Trainer</h1>
+        <h2 className="title-page">View Trainers</h2>
         {isLoading && <Spinner />}
         {isError && (
           <p className="text-center font-bold text-red-400 text-lg">
@@ -52,9 +65,27 @@ const SelectTrainer = () => {
               key={i}
               className="flex flex-col gap-1 p-2 shadow-lg drop-shadow-lg bg-stone-300 border-stone-300 border rounded cursor-pointer hover:bg-sky-600"
             >
-              <h2>{trainer.name}</h2>
+              <h2 className="text-lg">
+                <span className="font-bold">Trainer:</span> {trainer.name}
+              </h2>
+              <button
+                className="button w-full h-10"
+                onClick={() => onTrainerSelect(trainer.id)}
+              >
+                Select
+              </button>
             </div>
           ))}
+      </div>
+
+      <div className="container mx-auto flex flex-col gap-4">
+        <h2 className="title-page">My Trainer</h2>
+        {isLoading && <Spinner />}
+        {isError && (
+          <p className="text-center font-bold text-red-400 text-lg">
+            Error loading trainers
+          </p>
+        )}
       </div>
     </Menu>
   );

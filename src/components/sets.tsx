@@ -10,8 +10,6 @@ const Sets = ({ exerciseId }: SProps) => {
     exerciseId,
   });
 
-  console.log("SET", data)
-
   return (
     <div>
       {isLoading && <Spinner />}
@@ -20,12 +18,19 @@ const Sets = ({ exerciseId }: SProps) => {
           Error loading workout
         </p>
       )}
+      {data && (
+        <div className="grid grid-cols-3 gap-2 place-items-center">
+          <p className="font-bold">Reps</p>
+          <p className="font-bold">Weigh</p>
+          <p className="font-bold">Remove Set</p>
+        </div>
+      )}
       {data &&
         data.map((set, i) => (
-          <div className="grid grid-cols-3 gap-2" key={i}>
+          <div className="grid grid-cols-3 gap-2 place-items-center" key={i}>
             <p>{set.reps}</p>
             <p>{set.weight}</p>
-            <p>Delete</p>
+            <button className="button w-14 md:w-8 h-8">Delete</button>
           </div>
         ))}
     </div>
