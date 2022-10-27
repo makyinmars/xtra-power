@@ -79,19 +79,24 @@ export const clientRouter = t.router({
   getTrainer: authedProcedure
     .input(
       z.object({
-        trainerId: z.string(),
+        email: z.string(),
       })
     )
-    .query(({ ctx, input: { trainerId } }) => {
-      const trainer = ctx.prisma.trainer.findUnique({
+    .query(async ({ ctx, input: { email } }) => {
+      const client = await ctx.prisma.client.findUnique({
         where: {
-          id: trainerId,
-        },
-        include: {
-          clients: true,
+          email,
         },
       });
 
-      return trainer;
+      if (client && client.trainerId) {
+        const trainer = await ctx.prisma.trainer.findUnique({
+          where: {
+            id: client.trainerId,
+          },
+        });
+
+        return trainer;
+      }
     }),
 });

@@ -22,6 +22,14 @@ const SelectTrainer = () => {
     email: session ? (session.user?.email as string) : "nice try",
   });
 
+  const {
+    data: trainerData,
+    isLoading: trainerIsLoading,
+    isError: trainerIsError,
+  } = trpc.client.getTrainer.useQuery({
+    email: session ? (session.user?.email as string) : "nice try",
+  });
+
   const onTrainerSelect = async (trainerId: string) => {
     try {
       if (user) {
@@ -48,44 +56,58 @@ const SelectTrainer = () => {
       <Head>
         <title>Select Trainer</title>
       </Head>
-      <div className="container mx-auto flex flex-col gap-4">
-        <h2 className="title-page">View Trainers</h2>
-        {isLoading && <Spinner />}
-        {isError && (
-          <p className="text-center font-bold text-red-400 text-lg">
-            Error loading trainers
-          </p>
-        )}
-      </div>
+      <div className="flex flex-col gap-2">
+        <div className="container mx-auto flex flex-col gap-4">
+          <h2 className="title-page">My Trainer</h2>
+          {trainerIsLoading && <Spinner />}
+          {trainerIsError && (
+            <p className="text-center font-bold text-red-400 text-lg">
+              You do not have a trainer yet
+            </p>
+          )}
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-        {data &&
-          data.map((trainer, i) => (
-            <div
-              key={i}
-              className="flex flex-col gap-1 p-2 shadow-lg drop-shadow-lg bg-stone-300 border-stone-300 border rounded cursor-pointer hover:bg-sky-600"
-            >
-              <h2 className="text-lg">
-                <span className="font-bold">Trainer:</span> {trainer.name}
-              </h2>
-              <button
-                className="button w-full h-10"
-                onClick={() => onTrainerSelect(trainer.id)}
-              >
-                Select
-              </button>
+          {trainerData && (
+            <div className="flex flex-col gap-2">
+              <p className="text-center ext-lg">
+                Your trainer is{" "}
+                <span className="font-bold">{trainerData.name}</span>
+              </p>
+              <p className="text-center text-lg">
+                Your trainer{`'`}s email is{" "}
+                <span className="font-bold">{trainerData.email}</span>
+              </p>
             </div>
-          ))}
-      </div>
+          )}
+        </div>
+        <div className="container mx-auto flex flex-col gap-4">
+          <h2 className="title-page">View Trainers</h2>
+          {isLoading && <Spinner />}
+          {isError && (
+            <p className="text-center font-bold text-red-400 text-lg">
+              Error loading trainers
+            </p>
+          )}
+        </div>
 
-      <div className="container mx-auto flex flex-col gap-4">
-        <h2 className="title-page">My Trainer</h2>
-        {isLoading && <Spinner />}
-        {isError && (
-          <p className="text-center font-bold text-red-400 text-lg">
-            Error loading trainers
-          </p>
-        )}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          {data &&
+            data.map((trainer, i) => (
+              <div
+                key={i}
+                className="flex flex-col gap-1 p-2 shadow-lg drop-shadow-lg bg-stone-300 border-stone-300 border rounded cursor-pointer hover:bg-sky-600"
+              >
+                <h2 className="text-lg">
+                  <span className="font-bold">Trainer:</span> {trainer.name}
+                </h2>
+                <button
+                  className="button w-full h-10"
+                  onClick={() => onTrainerSelect(trainer.id)}
+                >
+                  Select
+                </button>
+              </div>
+            ))}
+        </div>
       </div>
     </Menu>
   );

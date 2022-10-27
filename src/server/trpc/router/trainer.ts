@@ -51,4 +51,23 @@ export const trainerRouter = t.router({
 
     return trainers;
   }),
+
+  getTrainerClients: authedProcedure
+    .input(
+      z.object({
+        trainerId: z.string(),
+      })
+    )
+    .query(async ({ ctx, input: { trainerId } }) => {
+      const clients = await ctx.prisma.client.findMany({
+        where: {
+          trainerId: trainerId,
+        },
+        include: {
+          user: true,
+        },
+      });
+
+      return clients;
+    }),
 });
