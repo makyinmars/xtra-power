@@ -25,10 +25,9 @@ export const userRouter = t.router({
       z.object({
         name: z.string(),
         email: z.string(),
-        type: z.string(),
       })
     )
-    .mutation(({ ctx, input: { name, email, type } }) => {
+    .mutation(({ ctx, input: { name, email } }) => {
       const user = ctx.prisma.user.create({
         data: {
           name: name,
@@ -75,10 +74,9 @@ export const userRouter = t.router({
       z.object({
         id: z.string(),
         name: z.string(),
-        type: z.string(),
       })
     )
-    .mutation(({ ctx, input: { id, name, type } }) => {
+    .mutation(({ ctx, input: { id, name } }) => {
       const user = ctx.prisma.user.update({
         where: {
           id,

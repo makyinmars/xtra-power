@@ -11,6 +11,7 @@ const session = {
     id: "1",
     name: "Test User",
     email: "test@gmail.com",
+    image: "test.png",
   },
   expires: new Date().toDateString(),
 };
@@ -22,9 +23,23 @@ test("Create a workout and retrieve new workout", async () => {
 
   const caller = appRouter.createCaller(ctx);
 
+  const { id, name, email, image } = session.user;
+
+  const createClientInput: inferProcedureInput<
+    AppRouter["client"]["createClient"]
+  > = {
+    name,
+    userId: id,
+    email,
+    image,
+  };
+
+  const newClient = await caller.client.createClient(createClientInput);
+
   const input: inferProcedureInput<AppRouter["workout"]["createWorkout"]> = {
     name: "test",
     description: "test",
+    clientId: newClient.id,
   };
 
   const newWorkout = await caller.workout.createWorkout(input);
@@ -34,6 +49,12 @@ test("Create a workout and retrieve new workout", async () => {
   })) as Workout;
 
   expect(newWorkout).toMatchObject(workout);
+
+  // Delete the new workout created
+  await caller.workout.deleteWorkoutById({ id: workout.id });
+
+  // Delete the new client created
+  await caller.user.deleteUser({ id: newClient.userId as string });
 });
 
 test("Update a workout and retrieve the updated workout", async () => {
@@ -43,9 +64,23 @@ test("Update a workout and retrieve the updated workout", async () => {
 
   const caller = appRouter.createCaller(ctx);
 
+  const { id, name, email, image } = session.user;
+
+  const createClientInput: inferProcedureInput<
+    AppRouter["client"]["createClient"]
+  > = {
+    name,
+    userId: id,
+    email,
+    image,
+  };
+
+  const newClient = await caller.client.createClient(createClientInput);
+
   const input: inferProcedureInput<AppRouter["workout"]["createWorkout"]> = {
     name: "test",
     description: "test",
+    clientId: newClient.id,
   };
 
   const newWorkout = await caller.workout.createWorkout(input);
@@ -65,6 +100,12 @@ test("Update a workout and retrieve the updated workout", async () => {
   })) as Workout;
 
   expect(updatedWorkout).toMatchObject(workout);
+
+  // Delete the new workout created
+  await caller.workout.deleteWorkoutById({ id: workout.id });
+
+  // Delete the new client created
+  await caller.user.deleteUser({ id: newClient.userId as string });
 });
 
 test("Delete a workout", async () => {
@@ -73,9 +114,23 @@ test("Delete a workout", async () => {
   });
   const caller = appRouter.createCaller(ctx);
 
+  const { id, name, email, image } = session.user;
+
+  const createClientInput: inferProcedureInput<
+    AppRouter["client"]["createClient"]
+  > = {
+    name,
+    userId: id,
+    email,
+    image,
+  };
+
+  const newClient = await caller.client.createClient(createClientInput);
+
   const input: inferProcedureInput<AppRouter["workout"]["createWorkout"]> = {
     name: "test",
     description: "test",
+    clientId: newClient.id,
   };
 
   const newWorkout = await caller.workout.createWorkout(input);
@@ -85,4 +140,7 @@ test("Delete a workout", async () => {
   });
 
   expect(deletedWorkout).toMatchObject(newWorkout);
+
+  // Delete the new client created
+  await caller.user.deleteUser({ id: newClient.userId as string });
 });

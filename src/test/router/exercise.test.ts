@@ -6,7 +6,7 @@ import { AppRouter, appRouter } from "src/server/trpc/router/index";
 import { inferProcedureInput } from "@trpc/server";
 import { Exercise } from "@prisma/client";
 
-const workoutId = "cl97nb1ku01972j1i1ecsn83i";
+const workoutId = "cl9oxh9ja00011iwr830wyg7p";
 
 const session = {
   user: {

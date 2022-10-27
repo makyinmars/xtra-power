@@ -53,9 +53,9 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
-  trainer       Trainer?  @relation(fields: [trainerId], references: [id])
+  trainer       Trainer?  @relation(fields: [trainerId], references: [id], onDelete: Cascade)
   trainerId     String?   @unique
-  client        Client?   @relation(fields: [clientId], references: [id])
+  client        Client?   @relation(fields: [clientId], references: [id], onDelete: Cascade)
   clientId      String?   @unique
 }
 

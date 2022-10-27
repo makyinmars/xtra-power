@@ -3,16 +3,16 @@ import { AppRouter, appRouter } from "src/server/trpc/router/index";
 import { inferProcedureInput } from "@trpc/server";
 import { User } from "@prisma/client";
 
-const session = {
-  user: {
-    id: "1",
-    name: "Test User",
-    email: "test@gmail.com",
-  },
-  expires: new Date().toDateString(),
-};
-
 test("Create a user and retrieve the new user", async () => {
+  const session = {
+    user: {
+      id: "1",
+      name: "Test User",
+      email: "test-1@gmail.com",
+    },
+    expires: new Date().toDateString(),
+  };
+
   const ctx = await createContextInner({
     session: session,
   });
@@ -22,19 +22,28 @@ test("Create a user and retrieve the new user", async () => {
   const input: inferProcedureInput<AppRouter["user"]["createUser"]> = {
     name: "test",
     email: "jonDoe@gmail.com",
-    type: "Trainer",
   };
 
   const user = await caller.user.createUser(input);
 
   const newUser = (await caller.user.getUserByEmail({
-    email: user.email,
+    email: user.email as string,
   })) as User;
 
   expect(user).toMatchObject(newUser);
+
+  await caller.user.deleteUser({ id: newUser.id });
 });
 
 test("Update a user and retrieve the updated user", async () => {
+  const session = {
+    user: {
+      id: "2",
+      name: "Test User",
+      email: "test-2@gmail.com",
+    },
+    expires: new Date().toDateString(),
+  };
   const ctx = await createContextInner({
     session: session,
   });
@@ -44,7 +53,6 @@ test("Update a user and retrieve the updated user", async () => {
   const input: inferProcedureInput<AppRouter["user"]["createUser"]> = {
     name: "test",
     email: "janeDoe@gmail.com",
-    type: "Trainer",
   };
 
   const newUser = await caller.user.createUser(input);
@@ -52,19 +60,29 @@ test("Update a user and retrieve the updated user", async () => {
   const updateInput: inferProcedureInput<AppRouter["user"]["updateUser"]> = {
     id: newUser.id,
     name: "test2",
-    type: "Trainee",
   };
 
   const updatedUser = await caller.user.updateUser(updateInput);
 
   const user = (await caller.user.getUserByEmail({
-    email: updatedUser.email,
+    email: updatedUser.email as string,
   })) as User;
 
   expect(updatedUser).toMatchObject(user);
+
+  await caller.user.deleteUser({ id: newUser.id });
 });
 
 test("Delete a user", async () => {
+  const session = {
+    user: {
+      id: "3",
+      name: "Test User",
+      email: "test-3@gmail.com",
+    },
+    expires: new Date().toDateString(),
+  };
+
   const ctx = await createContextInner({
     session: session,
   });
@@ -74,7 +92,6 @@ test("Delete a user", async () => {
   const input: inferProcedureInput<AppRouter["user"]["createUser"]> = {
     name: "test",
     email: "franklin@gmail.com",
-    type: "Trainer",
   };
 
   const newUser = await caller.user.createUser(input);
