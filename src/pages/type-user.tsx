@@ -76,14 +76,14 @@ const TypeUser = () => {
     router.push("/");
   };
 
-  useEffect(() => {
-    if (!session) {
-      router.push("/");
-    }
-    if (userData?.clientId || userData?.trainerId) {
-      router.push("/");
-    }
-  }, [router, userData, session]);
+  /* useEffect(() => { */
+  /*   if (!session) { */
+  /*     router.push("/"); */
+  /*   } */
+  /*   if (userData?.clientId || userData?.trainerId) { */
+  /*     router.push("/"); */
+  /*   } */
+  /* }, [router, userData, session]); */
 
   return (
     <>
