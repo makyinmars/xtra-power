@@ -30,7 +30,7 @@ const Sets = ({ exerciseId }: SProps) => {
           <div className="grid grid-cols-3 gap-2 place-items-center" key={i}>
             <p>{set.reps}</p>
             <p>{set.weight}</p>
-            <button className="button w-14 md:w-8 h-8">Delete</button>
+            <button className="button w-14 md:w-8 h-8 my-1">Delete</button>
           </div>
         ))}
     </div>
