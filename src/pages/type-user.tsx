@@ -1,11 +1,14 @@
 import { Dialog, Transition, RadioGroup } from "@headlessui/react";
-import { Fragment, useEffect, useState } from "react";
+import { GetServerSideProps } from "next/types";
+import { Fragment, useState } from "react";
+import { User } from "@prisma/client";
 import { BsCheckLg } from "react-icons/bs";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
+import Head from "next/head";
 
 import { trpc } from "src/utils/trpc";
-import Head from "next/head";
+import { getServerAuthSession } from "src/server/common/get-server-auth-session";
 
 const users = [
   {
@@ -75,15 +78,6 @@ const TypeUser = () => {
   const closeModal = () => {
     router.push("/");
   };
-
-  /* useEffect(() => { */
-  /*   if (!session) { */
-  /*     router.push("/"); */
-  /*   } */
-  /*   if (userData?.clientId || userData?.trainerId) { */
-  /*     router.push("/"); */
-  /*   } */
-  /* }, [router, userData, session]); */
 
   return (
     <>
@@ -202,3 +196,36 @@ const TypeUser = () => {
 };
 
 export default TypeUser;
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const session = await getServerAuthSession(context);
+  if (!session) {
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false,
+      },
+    };
+  }
+
+  const user = (await prisma?.user.findUnique({
+    where: {
+      email: session?.user?.email as string | undefined,
+    },
+  })) as User;
+
+  if (user.trainerId || user.clientId) {
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: {
+      session,
+    },
+  };
+};

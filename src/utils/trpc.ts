@@ -25,7 +25,7 @@ export const trpc = createTRPCNext<AppRouter>({
         }),
       ],
       queryClientConfig: {
-        defaultOptions: { queries: { staleTime: 60 } },
+        defaultOptions: { queries: { staleTime: Infinity } },
       },
     };
   },
