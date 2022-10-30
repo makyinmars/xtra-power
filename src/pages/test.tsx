@@ -1,15 +1,23 @@
 import { GetServerSidePropsContext, InferGetServerSidePropsType } from "next";
 import superjson from "superjson";
+import { useRouter } from "next/router";
 import { createProxySSGHelpers } from "@trpc/react-query/ssg";
 
 import { createContextInner } from "src/server/trpc/context";
 import { appRouter } from "src/server/trpc/router";
 import { getServerAuthSession } from "src/server/common/get-server-auth-session";
+import { useEffect } from "react";
 
 const Test = (
-  props: InferGetServerSidePropsType<typeof getServerSideProps>
+  {email}: InferGetServerSidePropsType<typeof getServerSideProps>
 ) => {
-  console.log("Props", props);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!email) {
+      router.push("/");
+    }
+  }, [email, router]);
   return <div>Test</div>;
 };
 
@@ -20,34 +28,26 @@ export const getServerSideProps = async (
 ) => {
   const session = await getServerAuthSession(context);
 
-  if (session) {
-    const ctx = createContextInner({
-      session,
-    });
+  const ctx = createContextInner({
+    session,
+  });
 
-    const ssg = createProxySSGHelpers({
-      ctx: await ctx,
-      router: appRouter,
-      transformer: superjson,
-    });
+  const ssg = createProxySSGHelpers({
+    ctx: await ctx,
+    router: appRouter,
+    transformer: superjson,
+  });
 
-    const email = session.user?.email as string;
+  const email = session?.user?.email as string;
 
-    await ssg.user.getUserByEmail.prefetch({
-      email,
-    });
+  await ssg.user.getUserByEmail.prefetch({
+    email,
+  });
 
-    return {
-      props: {
-        trpcState: ssg.dehydrate(),
-        email,
-      },
-    };
-  } else {
-    return {
-      props: {
-        email: null,
-      },
-    };
-  }
+  return {
+    props: {
+      trpcState: ssg.dehydrate(),
+      email: email ?? null,
+    },
+  };
 };
