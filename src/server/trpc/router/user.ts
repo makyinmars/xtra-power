@@ -20,6 +20,18 @@ export const userRouter = t.router({
       }
     }),
 
+  getUser: authedProcedure.query(({ ctx }) => {
+    const { session, prisma } = ctx;
+    if (session && session.user) {
+      const email = session.user.email as string;
+      return prisma.user.findUnique({
+        where: {
+          email,
+        },
+      });
+    }
+  }),
+
   createUser: authedProcedure
     .input(
       z.object({

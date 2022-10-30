@@ -1,48 +1,53 @@
-import { GetServerSideProps } from "next/types";
-import { useSession } from "next-auth/react";
+import { GetServerSidePropsContext, InferGetServerSidePropsType } from "next";
+import superjson from "superjson";
+import { createProxySSGHelpers } from "@trpc/react-query/ssg";
 
+import { createContextInner } from "src/server/trpc/context";
+import { appRouter } from "src/server/trpc/router";
 import { getServerAuthSession } from "src/server/common/get-server-auth-session";
-import { User } from "@prisma/client";
 
-const Test = () => {
-  const { data: session } = useSession();
-  console.log("DATA", session);
+const Test = (
+  props: InferGetServerSidePropsType<typeof getServerSideProps>
+) => {
+  console.log("Props", props);
   return <div>Test</div>;
 };
 
 export default Test;
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
+export const getServerSideProps = async (
+  context: GetServerSidePropsContext
+) => {
   const session = await getServerAuthSession(context);
-  if (!session) {
-    return {
-      redirect: {
-        destination: "/",
-        permanent: false,
-      },
-    };
-  }
 
-  const user = (await prisma?.user.findUnique({
-    where: {
-      email: session?.user?.email as string | undefined,
-    },
-  })) as User;
-
-  console.log("user", user)
-
-  if (user.trainerId || user.clientId) {
-    return {
-      redirect: {
-        destination: "/",
-        permanent: false,
-      },
-    };
-  }
-
-  return {
-    props: {
+  if (session) {
+    const ctx = createContextInner({
       session,
-    },
-  };
+    });
+
+    const ssg = createProxySSGHelpers({
+      ctx: await ctx,
+      router: appRouter,
+      transformer: superjson,
+    });
+
+    const email = session.user?.email as string;
+
+    await ssg.user.getUserByEmail.prefetch({
+      email,
+    });
+
+    return {
+      props: {
+        trpcState: ssg.dehydrate(),
+        email,
+      },
+    };
+  } else {
+    return {
+      props: {
+        email: null,
+      },
+    };
+  }
 };

@@ -11,9 +11,15 @@ import { trpc } from "src/utils/trpc";
 const Home: NextPage = () => {
   const { data: session } = useSession();
 
-  const { data: user } = trpc.user.getUserByEmail.useQuery({
-    email: session ? (session.user?.email as string) : "nice try",
-  });
+  const { data: user } = trpc.user.getUserByEmail.useQuery(
+    {
+      email: session ? (session.user?.email as string) : "nice try",
+    },
+    { enabled: false }
+  );
+
+  const {data: userCtx} = trpc.user.getUser.useQuery()
+  console.log("userCTX", userCtx)
 
   return (
     <>
