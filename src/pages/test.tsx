@@ -1,7 +1,7 @@
 import { GetServerSidePropsContext, InferGetServerSidePropsType } from "next";
 import { useRouter } from "next/router";
-
 import { useEffect } from "react";
+
 import { ssrInit } from "src/utils/ssg";
 
 const Test = ({

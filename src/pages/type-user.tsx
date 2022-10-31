@@ -1,14 +1,15 @@
 import { Dialog, Transition, RadioGroup } from "@headlessui/react";
-import { GetServerSideProps } from "next/types";
-import { Fragment, useState } from "react";
-import { User } from "@prisma/client";
+import {
+  GetServerSidePropsContext,
+  InferGetServerSidePropsType,
+} from "next/types";
+import { Fragment, useEffect, useState } from "react";
 import { BsCheckLg } from "react-icons/bs";
 import { useRouter } from "next/router";
-import { useSession } from "next-auth/react";
 import Head from "next/head";
 
 import { trpc } from "src/utils/trpc";
-import { getServerAuthSession } from "src/server/common/get-server-auth-session";
+import { ssrInit } from "src/utils/ssg";
 
 const users = [
   {
@@ -21,15 +22,14 @@ const users = [
   },
 ];
 
-const TypeUser = () => {
+const TypeUser = ({
+  email,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(true);
   const [selected, setSelected] = useState(users[0]);
-  const { data: session } = useSession();
 
   const utils = trpc.useContext();
-
-  const email = session ? (session.user?.email as string) : "nice try";
 
   const { data: userData } = trpc.user.getUserByEmail.useQuery({
     email,
@@ -78,6 +78,16 @@ const TypeUser = () => {
   const closeModal = () => {
     router.push("/");
   };
+
+  useEffect(() => {
+    if (!email) {
+      router.push("/");
+    }
+
+    if (userData?.clientId || userData?.trainerId) {
+      router.push("/");
+    }
+  }, [email, router, userData]);
 
   return (
     <>
@@ -197,35 +207,21 @@ const TypeUser = () => {
 
 export default TypeUser;
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const session = await getServerAuthSession(context);
-  if (!session) {
-    return {
-      redirect: {
-        destination: "/",
-        permanent: false,
-      },
-    };
-  }
+export const getServerSideProps = async (
+  context: GetServerSidePropsContext
+) => {
+  const { ssg, session } = await ssrInit(context);
 
-  const user = (await prisma?.user.findUnique({
-    where: {
-      email: session?.user?.email as string | undefined,
-    },
-  })) as User;
+  const email = session?.user?.email as string;
 
-  if (user.trainerId || user.clientId) {
-    return {
-      redirect: {
-        destination: "/",
-        permanent: false,
-      },
-    };
-  }
+  await ssg.user.getUserByEmail.prefetch({
+    email,
+  });
 
   return {
     props: {
-      session,
+      trpcState: ssg.dehydrate(),
+      email: email ?? null,
     },
   };
 };

@@ -1,4 +1,4 @@
-import type { NextPage } from "next";
+import { GetServerSidePropsContext, InferGetServerSidePropsType } from "next";
 import { FaDiscord } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import Image from "next/image";
@@ -6,20 +6,17 @@ import Head from "next/head";
 import { signIn, signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 
+import { ssrInit } from "src/utils/ssg";
 import { trpc } from "src/utils/trpc";
 
-const Home: NextPage = () => {
+const Home = ({
+  email,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   const { data: session } = useSession();
 
-  const { data: user } = trpc.user.getUserByEmail.useQuery(
-    {
-      email: session ? (session.user?.email as string) : "nice try",
-    },
-    { enabled: false }
-  );
-
-  const {data: userCtx} = trpc.user.getUser.useQuery()
-  console.log("userCTX", userCtx)
+  const { data: user } = trpc.user.getUserByEmail.useQuery({
+    email,
+  });
 
   return (
     <>
@@ -110,3 +107,22 @@ const Home: NextPage = () => {
 };
 
 export default Home;
+
+export const getServerSideProps = async (
+  context: GetServerSidePropsContext
+) => {
+  const { ssg, session } = await ssrInit(context);
+
+  const email = session?.user?.email as string;
+
+  await ssg.user.getUserByEmail.prefetch({
+    email,
+  });
+
+  return {
+    props: {
+      trpcState: ssg.dehydrate(),
+      email: email ?? null,
+    },
+  };
+};
