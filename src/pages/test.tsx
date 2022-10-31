@@ -1,16 +1,12 @@
 import { GetServerSidePropsContext, InferGetServerSidePropsType } from "next";
-import superjson from "superjson";
 import { useRouter } from "next/router";
-import { createProxySSGHelpers } from "@trpc/react-query/ssg";
 
-import { createContextInner } from "src/server/trpc/context";
-import { appRouter } from "src/server/trpc/router";
-import { getServerAuthSession } from "src/server/common/get-server-auth-session";
 import { useEffect } from "react";
+import { ssrInit } from "src/utils/ssg";
 
-const Test = (
-  {email}: InferGetServerSidePropsType<typeof getServerSideProps>
-) => {
+const Test = ({
+  email,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   const router = useRouter();
 
   useEffect(() => {
@@ -26,17 +22,7 @@ export default Test;
 export const getServerSideProps = async (
   context: GetServerSidePropsContext
 ) => {
-  const session = await getServerAuthSession(context);
-
-  const ctx = createContextInner({
-    session,
-  });
-
-  const ssg = createProxySSGHelpers({
-    ctx: await ctx,
-    router: appRouter,
-    transformer: superjson,
-  });
+  const { ssg, session } = await ssrInit(context);
 
   const email = session?.user?.email as string;
 
