@@ -2,6 +2,7 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 
 import { t, authedProcedure } from "../trpc";
+import { User } from "@prisma/client";
 
 export const trainerRouter = t.router({
   createTrainer: authedProcedure
@@ -58,8 +59,8 @@ export const trainerRouter = t.router({
         trainerId: z.string(),
       })
     )
-    .query(async ({ ctx, input: { trainerId } }) => {
-      const clients = await ctx.prisma.client.findMany({
+    .query(({ ctx, input: { trainerId } }) => {
+      const clients = ctx.prisma.client.findMany({
         where: {
           trainerId: trainerId,
         },

@@ -1,21 +1,23 @@
 import { useEffect } from "react";
+import { GetServerSidePropsContext, InferGetServerSidePropsType } from "next";
 import { useRouter } from "next/router";
-import { useSession } from "next-auth/react";
 import Head from "next/head";
 
 import Spinner from "src/components/spinner";
 import { trpc } from "src/utils/trpc";
 import Menu from "src/components/menu";
+import { ssrInit } from "src/utils/ssg";
 
-const ViewWorkouts = () => {
+const ViewWorkouts = ({
+  email,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   const router = useRouter();
-  const { data: session } = useSession();
   const utils = trpc.useContext();
 
   const { data, isError, isLoading } = trpc.workout.getWorkouts.useQuery();
 
   const user = utils.user.getUserByEmail.getData({
-    email: session ? (session.user?.email as string) : "nice try",
+    email,
   });
 
   useEffect(() => {
@@ -46,7 +48,7 @@ const ViewWorkouts = () => {
             data.map((workout, i) => (
               <div
                 key={i}
-                className="flex flex-col gap-1 p-2 shadow-lg drop-shadow-lg bg-stone-300 border-stone-300 border rounded cursor-pointer hover:bg-stone-400"
+                className="flex flex-col gap-1 p-2 shadow-lg drop-shadow-lg bg-slate-400 rounded cursor-pointer hover:bg-slate-500"
                 onClick={() => router.push(`/workout/${workout.id}`)}
               >
                 <h2 className="subtitle-page">{workout.name}</h2>
@@ -60,3 +62,24 @@ const ViewWorkouts = () => {
 };
 
 export default ViewWorkouts;
+
+export const getServerSideProps = async (
+  context: GetServerSidePropsContext
+) => {
+  const { ssg, session } = await ssrInit(context);
+
+  const email = session?.user?.email as string;
+
+  await ssg.user.getUserByEmail.prefetch({
+    email,
+  });
+
+  await ssg.workout.getWorkouts.prefetch();
+
+  return {
+    props: {
+      trpcState: ssg.dehydrate(),
+      email: email ?? null,
+    },
+  };
+};

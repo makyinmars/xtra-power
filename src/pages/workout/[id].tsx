@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
-import type { GetServerSideProps } from "next";
-import { useSession } from "next-auth/react";
+import { useEffect } from "react";
+import { GetServerSidePropsContext, InferGetServerSidePropsType } from "next";
 import Head from "next/head";
 
 import { trpc } from "src/utils/trpc";
@@ -9,24 +9,26 @@ import Menu from "src/components/menu";
 import CreateExercise from "src/components/create-exercise";
 import CreateSet from "src/components/create-set";
 import Sets from "src/components/sets";
-import { useEffect } from "react";
+import { ssrInit } from "src/utils/ssg";
 
-const WorkoutId = () => {
+const WorkoutId = ({
+  email,
+  id,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   const router = useRouter();
   const utils = trpc.useContext();
-  const { data: session } = useSession();
-  const id = router.query.id as string;
+
   const { data, isError, isLoading } = trpc.workout.getWorkoutById.useQuery({
     id,
   });
 
   const user = utils.user.getUserByEmail.getData({
-    email: session ? (session.user?.email as string) : "nice try",
+    email,
   });
 
   useEffect(() => {
     if (user) {
-      if (user?.trainerId) {
+      if (user.trainerId) {
         router.push("/");
       }
     } else {
@@ -74,3 +76,29 @@ const WorkoutId = () => {
 };
 
 export default WorkoutId;
+
+export const getServerSideProps = async (
+  context: GetServerSidePropsContext<{ id: string }>
+) => {
+  const { ssg, session } = await ssrInit(context);
+
+  const email = session?.user?.email as string;
+
+  const id = context.params?.id as string;
+
+  await ssg.user.getUserByEmail.prefetch({
+    email,
+  });
+
+  await ssg.workout.getWorkoutById.prefetch({
+    id,
+  });
+
+  return {
+    props: {
+      trpcState: ssg.dehydrate(),
+      email: email ?? null,
+      id,
+    },
+  };
+};

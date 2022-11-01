@@ -1,20 +1,22 @@
 import { useEffect } from "react";
-import { useSession } from "next-auth/react";
+import { GetServerSidePropsContext, InferGetServerSidePropsType } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
 
 import Menu from "src/components/menu";
 import CreateWorkout from "src/components/create-workout";
 import { trpc } from "src/utils/trpc";
+import { ssrInit } from "src/utils/ssg";
 
-const Workout = () => {
+const Workout = ({
+  email,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   const router = useRouter();
-  const { data: session } = useSession();
 
   const utils = trpc.useContext();
 
   const user = utils.user.getUserByEmail.getData({
-    email: session ? (session.user?.email as string) : "nice try",
+    email,
   });
 
   useEffect(() => {
@@ -55,3 +57,22 @@ const Workout = () => {
 };
 
 export default Workout;
+
+export const getServerSideProps = async (
+  context: GetServerSidePropsContext
+) => {
+  const { ssg, session } = await ssrInit(context);
+
+  const email = session?.user?.email as string;
+
+  await ssg.user.getUserByEmail.prefetch({
+    email,
+  });
+
+  return {
+    props: {
+      trpcState: ssg.dehydrate(),
+      email: email ?? null,
+    },
+  };
+};

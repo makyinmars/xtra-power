@@ -1,4 +1,4 @@
-import { useSession } from "next-auth/react";
+import { GetServerSidePropsContext, InferGetServerSidePropsType } from "next";
 import { useRouter } from "next/router";
 import Head from "next/head";
 import { useEffect } from "react";
@@ -6,20 +6,20 @@ import { useEffect } from "react";
 import Menu from "src/components/menu";
 import Spinner from "src/components/spinner";
 import { trpc } from "src/utils/trpc";
+import { ssrInit } from "src/utils/ssg";
 
-const SelectTrainer = () => {
-  const { data: session } = useSession();
-
+const SelectTrainer = ({
+  email,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   const router = useRouter();
+  const utils = trpc.useContext();
 
   const { data, isLoading, isError } = trpc.trainer.getTrainers.useQuery();
-
-  const utils = trpc.useContext();
 
   const addTrainer = trpc.client.addTrainer.useMutation();
 
   const user = utils.user.getUserByEmail.getData({
-    email: session ? (session.user?.email as string) : "nice try",
+    email,
   });
 
   const {
@@ -27,7 +27,7 @@ const SelectTrainer = () => {
     isLoading: trainerIsLoading,
     isError: trainerIsError,
   } = trpc.client.getTrainer.useQuery({
-    email: session ? (session.user?.email as string) : "nice try",
+    email,
   });
 
   const onTrainerSelect = async (trainerId: string) => {
@@ -38,7 +38,7 @@ const SelectTrainer = () => {
           trainerId,
         });
       }
-    } catch {}
+    } catch { }
   };
 
   useEffect(() => {
@@ -114,3 +114,26 @@ const SelectTrainer = () => {
 };
 
 export default SelectTrainer;
+
+export const getServerSideProps = async (
+  context: GetServerSidePropsContext
+) => {
+  const { ssg, session } = await ssrInit(context);
+
+  const email = session?.user?.email as string;
+
+  await ssg.user.getUserByEmail.prefetch({
+    email,
+  });
+
+  await ssg.client.getTrainer.prefetch({
+    email,
+  });
+
+  return {
+    props: {
+      trpcState: ssg.dehydrate(),
+      email: email ?? null,
+    },
+  };
+};
