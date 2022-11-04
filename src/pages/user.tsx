@@ -1,6 +1,6 @@
 import { GetServerSidePropsContext, InferGetServerSidePropsType } from "next";
 import Head from "next/head";
-import {useRouter} from "next/router"
+import { useRouter } from "next/router";
 
 import Menu from "src/components/menu";
 import EditUser from "src/components/edit-user";
@@ -10,14 +10,29 @@ import { trpc } from "src/utils/trpc";
 const User = ({
   email,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-
-  const router = useRouter()
+  const router = useRouter();
 
   const { data } = trpc.user.getUserByEmail.useQuery({
     email,
   });
 
-  const deleteUser = trpc.user.deleteUser.useMutation()
+  const deleteUser = trpc.user.deleteUser.useMutation();
+
+  const onDeleteUser = async (id: string) => {
+    try {
+      if (data?.clientId) {
+        const user = await deleteUser.mutateAsync({ id });
+        if (user) {
+          router.push("/");
+        }
+      } else if (data?.trainerId) {
+        const user = await deleteUser.mutateAsync({ id });
+        if (user) {
+          router.push("/");
+        }
+      }
+    } catch { }
+  };
 
   return (
     <Menu>
@@ -35,7 +50,12 @@ const User = ({
           </h3>
           <EditUser userId={data.id} name={data.name as string} />
           <div className="flex justify-center">
-            <button className="button w-60">Delete User</button>
+            <button
+              className="button w-60"
+              onClick={() => onDeleteUser(data.id)}
+            >
+              Delete User
+            </button>
           </div>
         </div>
       )}

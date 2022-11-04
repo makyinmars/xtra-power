@@ -53,9 +53,9 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
-  trainer       Trainer?  @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  trainer       Trainer?
   trainerId     String?   @unique
-  client        Client?   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  client        Client?
   clientId      String?   @unique
 }
 
@@ -65,7 +65,7 @@ model Trainer {
   email   String?  @unique
   image   String?
   clients Client[]
-  user    User?
+  user    User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId  String?  @unique
 }
 
@@ -76,7 +76,7 @@ model Client {
   image     String?
   trainer   Trainer?  @relation(fields: [trainerId], references: [id])
   workout   Workout[]
-  user      User?
+  user      User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String?   @unique
   trainerId String?
 }
@@ -96,7 +96,7 @@ model Workout {
   exercises   Exercise[]
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
-  client      Client?    @relation(fields: [clientId], references: [id])
+  client      Client?    @relation(fields: [clientId], references: [id], onDelete: Cascade)
   clientId    String?
 }
 
