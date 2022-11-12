@@ -18,7 +18,7 @@ const ViewClients = ({
   });
 
   const { data, isLoading, isError } = trpc.trainer.getTrainerClients.useQuery({
-    trainerId: user ? (user.trainerId as string) : "nice try",
+    trainerId: user?.trainerId as string,
   });
 
   useEffect(() => {

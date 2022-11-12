@@ -11,27 +11,48 @@ const User = ({
   email,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   const router = useRouter();
+  const utils = trpc.useContext();
 
   const { data } = trpc.user.getUserByEmail.useQuery({
     email,
   });
 
-  const deleteUser = trpc.user.deleteUser.useMutation();
+  const deleteUser = trpc.user.deleteUser.useMutation({
+    async onSuccess() {
+      await utils.user.getUserByEmail.invalidate();
+    },
+  });
 
-  const onDeleteUser = async (id: string) => {
+  const deleteClient = trpc.client.deleteClient.useMutation({
+    async onSuccess() {
+      await utils.trainer.getTrainerClients.invalidate();
+      await utils.trainer.getTrainers.invalidate();
+    },
+  });
+
+  const deleteTrainer = trpc.trainer.deleteTrainer.useMutation({
+    async onSuccess() {
+      await utils.trainer.getTrainerClients.invalidate();
+      await utils.trainer.getTrainers.invalidate();
+    },
+  });
+
+  const onDeleteUser = async (email: string) => {
     try {
       if (data?.clientId) {
-        const user = await deleteUser.mutateAsync({ id });
+        await deleteClient.mutateAsync({ email });
+        const user = await deleteUser.mutateAsync({ email });
         if (user) {
           router.push("/");
         }
       } else if (data?.trainerId) {
-        const user = await deleteUser.mutateAsync({ id });
+        await deleteTrainer.mutateAsync({ email });
+        const user = await deleteUser.mutateAsync({ email });
         if (user) {
           router.push("/");
         }
       }
-    } catch { }
+    } catch {}
   };
 
   return (
@@ -52,7 +73,7 @@ const User = ({
           <div className="flex justify-center">
             <button
               className="button w-60"
-              onClick={() => onDeleteUser(data.id)}
+              onClick={() => onDeleteUser(data.email as string)}
             >
               Delete User
             </button>

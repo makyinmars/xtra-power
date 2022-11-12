@@ -71,4 +71,18 @@ export const trainerRouter = t.router({
 
       return clients;
     }),
+
+  deleteTrainer: authedProcedure
+    .input(
+      z.object({
+        email: z.string(),
+      })
+    )
+    .mutation(({ ctx, input: { email } }) => {
+      return ctx.prisma.trainer.delete({
+        where: {
+          email,
+        },
+      });
+    }),
 });
