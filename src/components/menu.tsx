@@ -30,9 +30,7 @@ const Menu = ({ children }: MenuProps) => {
       <div className="flex items-center justify-evenly gap-4">
         <div>
           <Link href="/">
-            <a>
-              <FcHome className="h-10 w-10" />
-            </a>
+            <FcHome className="h-10 w-10" />
           </Link>
         </div>
         <HeadlessMenu as="div" className="relative inline-block text-left">
@@ -66,8 +64,9 @@ const Menu = ({ children }: MenuProps) => {
                   <HeadlessMenu.Item key={item.label}>
                     {({ active }) => (
                       <div
-                        className={`${active ? "bg-gray-600 text-white" : "text-gray-900"
-                          } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
+                        className={`${
+                          active ? "bg-gray-600 text-white" : "text-gray-900"
+                        } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
                       >
                         {item.label === "Logout" ? (
                           <button
@@ -82,10 +81,10 @@ const Menu = ({ children }: MenuProps) => {
                           </button>
                         ) : (
                           <Link href={item.href}>
-                            <a className="flex gap-2">
+                            <div className="flex gap-2">
                               {item.icon}
                               {item.label}
-                            </a>
+                            </div>
                           </Link>
                         )}
                       </div>

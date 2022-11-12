@@ -16,6 +16,18 @@ const ViewWorkouts = ({
 
   const { data, isError, isLoading } = trpc.workout.getWorkouts.useQuery();
 
+  const deleteWorkout = trpc.workout.deleteWorkoutById.useMutation({
+    async onSuccess() {
+      await utils.workout.getWorkouts.invalidate();
+    },
+  });
+
+  const onDeleteWorkout = async (id: string) => {
+    try {
+      await deleteWorkout.mutateAsync({ id });
+    } catch {}
+  };
+
   const user = utils.user.getUserByEmail.getData({
     email,
   });
@@ -48,11 +60,24 @@ const ViewWorkouts = ({
             data.map((workout, i) => (
               <div
                 key={i}
-                className="flex flex-col gap-1 p-2 shadow-lg drop-shadow-lg bg-slate-400 rounded cursor-pointer hover:bg-slate-500"
-                onClick={() => router.push(`/workout/${workout.id}`)}
+                className="flex flex-col gap-1 p-2 shadow-lg drop-shadow-lg bg-slate-400 rounded"
               >
-                <h2 className="subtitle-page">{workout.name}</h2>
-                <p>{workout.description}</p>
+                <h2 className="text-2xl font-bold self-center">
+                  {workout.name}
+                </h2>
+                <p className="text-xl">{workout.description}</p>
+                <button
+                  onClick={() => router.push(`/workout/${workout.id}`)}
+                  className="button w-full p-1"
+                >
+                  View Workout
+                </button>
+                <button
+                  onClick={() => onDeleteWorkout(workout.id)}
+                  className="button w-full p-1"
+                >
+                  Delete Workout
+                </button>
               </div>
             ))}
         </div>

@@ -94,7 +94,7 @@ const SelectTrainer = ({
             data.map((trainer, i) => (
               <div
                 key={i}
-                className="flex flex-col gap-1 p-2 shadow-lg drop-shadow-lg bg-stone-300 border-stone-300 border rounded cursor-pointer hover:bg-sky-600"
+                className="flex flex-col gap-1 p-2 shadow-lg drop-shadow-lg bg-stone-100 border-stone-300 border rounded"
               >
                 <h2 className="text-lg">
                   <span className="font-bold">Trainer:</span> {trainer.name}
