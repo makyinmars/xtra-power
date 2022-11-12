@@ -2,6 +2,9 @@
   "name": "xtra-power",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=18.12.1"
+  },
   "scripts": {
     "build": "next build",
     "dev": "next dev",
@@ -22,8 +25,8 @@
     "@trpc/next": "^10.0.0-proxy-beta.26",
     "@trpc/react-query": "^10.0.0-proxy-beta.26",
     "@trpc/server": "^10.0.0-proxy-beta.26",
-    "next": "12.3.1",
-    "next-auth": "~4.10.2",
+    "next": "^13.0.3",
+    "next-auth": "^4.16.4",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-hook-form": "^7.37.0",
