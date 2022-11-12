@@ -21,7 +21,7 @@ const EditUser = ({ userId, name }: EditUserProps) => {
 
   const updateUser = trpc.user.updateUser.useMutation({
     async onSuccess() {
-      await utils.user.getUser.invalidate();
+      await utils.user.getUserByEmail.invalidate();
     },
   });
 
@@ -47,7 +47,7 @@ const EditUser = ({ userId, name }: EditUserProps) => {
           },
         });
       }
-    } catch { }
+    } catch {}
   };
 
   function closeModal() {

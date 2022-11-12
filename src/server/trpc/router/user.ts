@@ -1,5 +1,7 @@
-import { t, authedProcedure } from "../trpc";
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+
+import { t, authedProcedure } from "../trpc";
 
 export const userRouter = t.router({
   getUserByEmail: authedProcedure
@@ -15,6 +17,13 @@ export const userRouter = t.router({
             email: email,
           },
         });
+
+        if (!user) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to find user",
+          });
+        }
 
         return user;
       }

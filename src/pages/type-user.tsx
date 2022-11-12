@@ -119,7 +119,7 @@ const TypeUser = ({
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-sky-900 p-6 text-left align-middle shadow-xl transition-all h-full">
+                <Dialog.Panel className="w-full max-w-md transform overflow-hidden bg-slate-800 rounded-2xl p-6 text-left align-middle shadow-xl transition-all h-full">
                   <Dialog.Title
                     as="h3"
                     className="text-2xl font-bold leading-6 text-slate-200 text-center"
@@ -153,8 +153,8 @@ const TypeUser = ({
                                         <RadioGroup.Label
                                           as="p"
                                           className={`font-medium text-xl ${checked
-                                              ? "text-slate-900"
-                                              : "text-slate-900"
+                                            ? "text-slate-900"
+                                            : "text-slate-900"
                                             }`}
                                         >
                                           {user.type}
@@ -162,8 +162,8 @@ const TypeUser = ({
                                         <RadioGroup.Description
                                           as="span"
                                           className={`inline text-lg ${checked
-                                              ? "text-slate-900"
-                                              : "text-gray-500"
+                                            ? "text-slate-900"
+                                            : "text-gray-500"
                                             }`}
                                         >
                                           <span>{user.description}</span>

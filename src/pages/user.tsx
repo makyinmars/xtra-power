@@ -17,38 +17,28 @@ const User = ({
     email,
   });
 
-  const deleteUser = trpc.user.deleteUser.useMutation({
+  const deleteClient = trpc.client.deleteClient.useMutation({
     async onSuccess() {
       await utils.user.getUserByEmail.invalidate();
     },
   });
 
-  const deleteClient = trpc.client.deleteClient.useMutation({
-    async onSuccess() {
-      await utils.trainer.getTrainerClients.invalidate();
-      await utils.trainer.getTrainers.invalidate();
-    },
-  });
-
   const deleteTrainer = trpc.trainer.deleteTrainer.useMutation({
     async onSuccess() {
-      await utils.trainer.getTrainerClients.invalidate();
-      await utils.trainer.getTrainers.invalidate();
+      await utils.user.getUserByEmail.invalidate();
     },
   });
 
   const onDeleteUser = async (email: string) => {
     try {
       if (data?.clientId) {
-        await deleteClient.mutateAsync({ email });
-        const user = await deleteUser.mutateAsync({ email });
-        if (user) {
+        const client = await deleteClient.mutateAsync({ email });
+        if (client) {
           router.push("/");
         }
       } else if (data?.trainerId) {
-        await deleteTrainer.mutateAsync({ email });
-        const user = await deleteUser.mutateAsync({ email });
-        if (user) {
+        const trainer = await deleteTrainer.mutateAsync({ email });
+        if (trainer) {
           router.push("/");
         }
       }

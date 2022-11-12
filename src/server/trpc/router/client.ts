@@ -14,6 +14,23 @@ export const clientRouter = t.router({
       })
     )
     .mutation(async ({ ctx, input: { name, email, image, userId } }) => {
+      const clientExist = await ctx.prisma.client.findUnique({
+        where: {
+          email: email as string,
+        },
+      });
+
+      if (clientExist) {
+        return await ctx.prisma.user.update({
+          where: {
+            id: userId,
+          },
+          data: {
+            clientId: clientExist.id,
+          },
+        });
+      }
+
       const client = await ctx.prisma.client.create({
         data: {
           name,
