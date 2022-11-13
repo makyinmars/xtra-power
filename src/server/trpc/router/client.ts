@@ -93,6 +93,40 @@ export const clientRouter = t.router({
       return Promise.all([clientUpdate, trainerUpdate]);
     }),
 
+  removeTrainer: authedProcedure
+    .input(
+      z.object({
+        userId: z.string(),
+        trainerId: z.string(),
+      })
+    )
+    .mutation(({ ctx, input: { userId, trainerId } }) => {
+      const clientUpdate = ctx.prisma.client.update({
+        where: {
+          userId,
+        },
+        data: {
+          trainerId: null,
+        },
+      });
+
+      const trainerUpdate = ctx.prisma.trainer.update({
+        where: {
+          id: trainerId,
+        },
+        data: {
+          clients: {
+            disconnect: {
+              userId: userId,
+            },
+          },
+        },
+      });
+
+      return Promise.all([clientUpdate, trainerUpdate]);
+    }),
+
+  // Fixt this function
   getTrainer: authedProcedure
     .input(
       z.object({
@@ -109,12 +143,35 @@ export const clientRouter = t.router({
       if (client && client.trainerId) {
         const trainer = await ctx.prisma.trainer.findUnique({
           where: {
-            id: client.trainerId,
+            id: client.trainerId as string,
           },
         });
 
         return trainer;
       }
+    }),
+
+  getClient: authedProcedure
+    .input(
+      z.object({
+        email: z.string(),
+      })
+    )
+    .query(({ ctx, input: { email } }) => {
+      const client = ctx.prisma.client.findUnique({
+        where: {
+          email,
+        },
+      });
+
+      if (!client) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to create client",
+        });
+      }
+
+      return client;
     }),
 
   deleteClient: authedProcedure

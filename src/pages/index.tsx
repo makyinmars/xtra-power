@@ -119,6 +119,10 @@ export const getServerSideProps = async (
     email,
   });
 
+  await ssg.client.getClient.prefetch({
+    email,
+  });
+
   return {
     props: {
       trpcState: ssg.dehydrate(),

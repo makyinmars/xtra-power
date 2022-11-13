@@ -16,7 +16,23 @@ const SelectTrainer = ({
 
   const { data, isLoading, isError } = trpc.trainer.getTrainers.useQuery();
 
-  const addTrainer = trpc.client.addTrainer.useMutation();
+  const addTrainer = trpc.client.addTrainer.useMutation({
+    async onSuccess() {
+      await utils.user.getUserByEmail.invalidate();
+      await utils.trainer.getTrainers.invalidate();
+      // Fix this function
+      /* await utils.client.getTrainer.invalidate(); */
+    },
+  });
+
+  const removeTrainer = trpc.client.removeTrainer.useMutation({
+    async onSuccess() {
+      await utils.user.getUserByEmail.invalidate();
+      await utils.trainer.getTrainers.invalidate();
+      // Fix this function
+      /* await utils.client.getTrainer.invalidate(); */
+    },
+  });
 
   const user = utils.user.getUserByEmail.getData({
     email,
@@ -38,7 +54,22 @@ const SelectTrainer = ({
           trainerId,
         });
       }
-    } catch { }
+    } catch {}
+  };
+
+  const onTrainerRemove = async (trainerId: string) => {
+    try {
+      if (user) {
+        const trainer = await removeTrainer.mutateAsync({
+          userId: user.id as string,
+          trainerId,
+        });
+
+        if (trainer) {
+          router.push("/");
+        }
+      }
+    } catch {}
   };
 
   useEffect(() => {
@@ -67,7 +98,7 @@ const SelectTrainer = ({
           )}
 
           {trainerData && (
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2 bg-slate-700 text-slate-200 mx-auto p-2 rounded">
               <p className="text-center ext-lg">
                 Your trainer is{" "}
                 <span className="font-bold">{trainerData.name}</span>
@@ -76,6 +107,14 @@ const SelectTrainer = ({
                 Your trainer{`'`}s email is{" "}
                 <span className="font-bold">{trainerData.email}</span>
               </p>
+              <div className="flex justify-center">
+                <button
+                  className="button bg-slate-200 text-slate-700 w-full p-1 hover:bg-slate-300 hover:text-slate-800"
+                  onClick={() => onTrainerRemove(trainerData.id)}
+                >
+                  Remove Trainer
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -123,6 +162,10 @@ export const getServerSideProps = async (
   const email = session?.user?.email as string;
 
   await ssg.user.getUserByEmail.prefetch({
+    email,
+  });
+
+  await ssg.client.getClient.prefetch({
     email,
   });
 

@@ -50,6 +50,13 @@ export const trainerRouter = t.router({
       },
     });
 
+    if (!trainers) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to get trainers",
+      });
+    }
+
     return trainers;
   }),
 
