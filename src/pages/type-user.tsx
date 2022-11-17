@@ -72,22 +72,22 @@ const TypeUser = ({
           }
         }
       }
-    } catch { }
+    } catch {}
   };
 
   const closeModal = () => {
     router.push("/");
   };
 
-  useEffect(() => {
-    if (!email) {
-      router.push("/");
-    }
-
-    if (userData?.clientId || userData?.trainerId) {
-      router.push("/");
-    }
-  }, [email, router, userData]);
+  /* useEffect(() => { */
+  /*   if (!email) { */
+  /*     router.push("/"); */
+  /*   } */
+  /**/
+  /*   if (userData?.clientId || userData?.trainerId) { */
+  /*     router.push("/"); */
+  /*   } */
+  /* }, [email, router, userData]); */
 
   return (
     <>
@@ -136,12 +136,14 @@ const TypeUser = ({
                               key={i}
                               value={user}
                               className={({ active, checked }) =>
-                                `${active
-                                  ? "ring-2 ring-white ring-opacity-60 ring-offset-2 ring-offset-sky-300"
-                                  : ""
+                                `${
+                                  active
+                                    ? "ring-2 ring-white ring-opacity-60 ring-offset-2 ring-offset-sky-300"
+                                    : ""
                                 }
-                  ${checked ? "bg-sky-300 bg-opacity-75 text-white" : "bg-white"
-                                }
+                  ${
+                    checked ? "bg-sky-300 bg-opacity-75 text-white" : "bg-white"
+                  }
                     relative flex cursor-pointer rounded-lg px-5 py-4 shadow-md focus:outline-none`
                               }
                             >
@@ -152,19 +154,21 @@ const TypeUser = ({
                                       <div className="text-sm">
                                         <RadioGroup.Label
                                           as="p"
-                                          className={`font-medium text-xl ${checked
-                                            ? "text-slate-900"
-                                            : "text-slate-900"
-                                            }`}
+                                          className={`font-medium text-xl ${
+                                            checked
+                                              ? "text-slate-900"
+                                              : "text-slate-900"
+                                          }`}
                                         >
                                           {user.type}
                                         </RadioGroup.Label>
                                         <RadioGroup.Description
                                           as="span"
-                                          className={`inline text-lg ${checked
-                                            ? "text-slate-900"
-                                            : "text-gray-500"
-                                            }`}
+                                          className={`inline text-lg ${
+                                            checked
+                                              ? "text-slate-900"
+                                              : "text-gray-500"
+                                          }`}
                                         >
                                           <span>{user.description}</span>
                                         </RadioGroup.Description>
@@ -214,14 +218,24 @@ export const getServerSideProps = async (
 
   const email = session?.user?.email as string;
 
-  await ssg.user.getUserByEmail.prefetch({
-    email,
-  });
+  if (email) {
+    await ssg.user.getUserByEmail.prefetch({
+      email,
+    });
 
-  return {
-    props: {
-      trpcState: ssg.dehydrate(),
-      email: email ?? null,
-    },
-  };
+    return {
+      props: {
+        trpcState: ssg.dehydrate(),
+        email: email ?? null,
+      },
+    };
+  } else {
+    console.log("HI")
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false,
+      },
+    };
+  }
 };

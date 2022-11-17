@@ -115,18 +115,27 @@ export const getServerSideProps = async (
 
   const email = session?.user?.email as string;
 
-  await ssg.user.getUserByEmail.prefetch({
-    email,
-  });
+  if (email) {
+    await ssg.user.getUserByEmail.prefetch({
+      email,
+    });
 
-  await ssg.client.getClient.prefetch({
-    email,
-  });
+    await ssg.client.getClient.prefetch({
+      email,
+    });
 
-  return {
-    props: {
-      trpcState: ssg.dehydrate(),
-      email: email ?? null,
-    },
-  };
+    return {
+      props: {
+        trpcState: ssg.dehydrate(),
+        email: email ?? null,
+      },
+    };
+  } else {
+    return {
+      redirect: "/",
+      props: {
+        trpcState: ssg.dehydrate(),
+      },
+    };
+  }
 };

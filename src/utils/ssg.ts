@@ -14,9 +14,7 @@ import { appRouter } from "src/server/trpc/router";
 export const ssrInit = async (context: GetServerSidePropsContext) => {
   const session = await getServerAuthSession(context);
 
-  const ctx = await createContextInner({
-    session,
-  });
+  const ctx = await createContextInner({ session });
 
   const ssg = createProxySSGHelpers({
     ctx,
@@ -25,6 +23,7 @@ export const ssrInit = async (context: GetServerSidePropsContext) => {
   });
 
   return {
-    ssg, session
+    ssg,
+    session,
   };
 };
