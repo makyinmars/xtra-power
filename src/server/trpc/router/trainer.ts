@@ -2,7 +2,6 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 
 import { t, authedProcedure } from "../trpc";
-import { User } from "@prisma/client";
 
 export const trainerRouter = t.router({
   createTrainer: authedProcedure
@@ -20,7 +19,6 @@ export const trainerRouter = t.router({
           name,
           email,
           image,
-          userId,
         },
       });
 
@@ -82,14 +80,34 @@ export const trainerRouter = t.router({
   deleteTrainer: authedProcedure
     .input(
       z.object({
-        email: z.string(),
+        id: z.string(),
       })
     )
-    .mutation(({ ctx, input: { email } }) => {
-      return ctx.prisma.trainer.delete({
+    .mutation(async ({ ctx, input: { id } }) => {
+      const user = await ctx.prisma.user.findFirst({
         where: {
-          email,
+          id,
         },
       });
+
+      if (!user) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to delete trainer",
+        });
+      }
+
+      const trainer = await ctx.prisma.trainer.delete({
+        where: {
+          id: user.trainerId as string,
+        },
+      });
+
+      if (!trainer) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to delete trainer",
+        });
+      }
     }),
 });

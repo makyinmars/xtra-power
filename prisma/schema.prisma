@@ -53,9 +53,9 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
-  trainer       Trainer?
+  trainer       Trainer?  @relation(fields: [trainerId], references: [id], onDelete: Cascade)
   trainerId     String?   @unique
-  client        Client?
+  client        Client?   @relation(fields: [clientId], references: [id], onDelete: Cascade)
   clientId      String?   @unique
 }
 
@@ -65,8 +65,7 @@ model Trainer {
   email   String?  @unique
   image   String?
   clients Client[]
-  user    User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId  String?  @unique
+  user    User?
 }
 
 model Client {
@@ -74,11 +73,10 @@ model Client {
   name      String?
   email     String?   @unique
   image     String?
-  trainer   Trainer?  @relation(fields: [trainerId], references: [id])
+  trainer   Trainer?  @relation(fields: [trainerId], references: [id], onDelete: Cascade)
   workout   Workout[]
-  user      User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    String?   @unique
   trainerId String?
+  user      User?
 }
 
 model VerificationToken {

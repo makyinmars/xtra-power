@@ -13,34 +13,30 @@ const User = ({
   const router = useRouter();
   const utils = trpc.useContext();
 
-  const { data } = trpc.user.getUserByEmail.useQuery({
-    email,
-  });
+  const data = utils.user.getUserByEmail.getData({ email });
 
   const deleteClient = trpc.client.deleteClient.useMutation({
     async onSuccess() {
       await utils.user.getUserByEmail.invalidate();
+      await router.push("/");
     },
   });
 
   const deleteTrainer = trpc.trainer.deleteTrainer.useMutation({
     async onSuccess() {
       await utils.user.getUserByEmail.invalidate();
+      await utils.auth.getSession.invalidate();
+      await router.push("/thank-you");
     },
   });
 
-  const onDeleteUser = async (email: string) => {
+  const onDeleteUser = async (id: string) => {
     try {
       if (data?.clientId) {
-        const client = await deleteClient.mutateAsync({ email });
-        if (client) {
-          router.push("/");
-        }
+        const email = "x";
+        await deleteClient.mutateAsync({ email });
       } else if (data?.trainerId) {
-        const trainer = await deleteTrainer.mutateAsync({ email });
-        if (trainer) {
-          router.push("/");
-        }
+        await deleteTrainer.mutateAsync({ id });
       }
     } catch {}
   };
@@ -63,7 +59,7 @@ const User = ({
           <div className="flex justify-center">
             <button
               className="button w-60"
-              onClick={() => onDeleteUser(data.email as string)}
+              onClick={() => onDeleteUser(data.id)}
             >
               Delete User
             </button>
@@ -83,14 +79,39 @@ export const getServerSideProps = async (
 
   const email = session?.user?.email as string;
 
-  await ssg.user.getUserByEmail.prefetch({
-    email,
-  });
+  if (email) {
+    const user = await ssg.user.getUserByEmail.fetch({
+      email,
+    });
 
-  return {
-    props: {
-      trpcState: ssg.dehydrate(),
-      email: email ?? null,
-    },
-  };
+    if (user?.clientId || user?.trainerId) {
+      return {
+        props: {
+          trpcState: ssg.dehydrate(),
+          email,
+        },
+      };
+    } else {
+      return {
+        props: {
+          trpcState: ssg.dehydrate(),
+        },
+        redirect: {
+          destination: "/",
+          permanent: false,
+        },
+      };
+    }
+  } else {
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false,
+      },
+      props: {
+        trpcState: ssg.dehydrate(),
+        email: null,
+      },
+    };
+  }
 };

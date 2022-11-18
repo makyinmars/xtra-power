@@ -134,7 +134,7 @@ export const getServerSideProps = async (
           trpcState: ssg.dehydrate(),
         },
         redirect: {
-          destination: "/",
+          destination: "/type-user",
           permanent: false,
         },
       };
