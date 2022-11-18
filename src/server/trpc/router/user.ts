@@ -7,7 +7,7 @@ export const userRouter = t.router({
   getUserByEmail: authedProcedure
     .input(
       z.object({
-        email: z.string(),
+        email: z.string().nullish(),
       })
     )
     .query(({ ctx, input: { email } }) => {
