@@ -219,9 +219,22 @@ export const getServerSideProps = async (
   const email = session?.user?.email as string;
 
   if (email) {
-    await ssg.user.getUserByEmail.prefetch({
+    const user = await ssg.user.getUserByEmail.fetch({
       email,
     });
+
+    if (user?.clientId || user?.trainerId) {
+      console.log("User", user);
+      return {
+        props: {
+          trpcState: ssg.dehydrate(),
+        },
+        redirect: {
+          destination: "/",
+          permanent: false,
+        },
+      };
+    }
 
     return {
       props: {
@@ -230,7 +243,7 @@ export const getServerSideProps = async (
       },
     };
   } else {
-    console.log("HI")
+    console.log("HI");
     return {
       redirect: {
         destination: "/",
