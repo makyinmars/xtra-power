@@ -25,6 +25,7 @@ test("Create a workout and retrieve new workout", async () => {
 
   const { id, name, email, image } = session.user;
 
+
   const createClientInput: inferProcedureInput<
     AppRouter["client"]["createClient"]
   > = {

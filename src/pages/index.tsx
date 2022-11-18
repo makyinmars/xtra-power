@@ -3,7 +3,7 @@ import { FaDiscord } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import Image from "next/image";
 import Head from "next/head";
-import { signIn, signOut, useSession } from "next-auth/react";
+import { signIn, signOut } from "next-auth/react";
 import Link from "next/link";
 
 import { ssrInit } from "src/utils/ssg";
@@ -12,11 +12,10 @@ import { trpc } from "src/utils/trpc";
 const Home = ({
   email,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-  const { data: session } = useSession();
+  const utils = trpc.useContext();
 
-  const { data: user } = trpc.user.getUserByEmail.useQuery({
-    email,
-  });
+  const user = utils.user.getUserByEmail.getData({ email });
+  const session = utils.auth.getSession.getData();
 
   return (
     <>
@@ -116,25 +115,35 @@ export const getServerSideProps = async (
   const email = session?.user?.email as string;
 
   if (email) {
-    await ssg.user.getUserByEmail.prefetch({
+    const user = await ssg.user.getUserByEmail.fetch({
       email,
     });
 
-    await ssg.client.getClient.prefetch({
-      email,
-    });
+    await ssg.auth.getSession.prefetch();
 
-    return {
-      props: {
-        trpcState: ssg.dehydrate(),
-        email: email ?? null,
-      },
-    };
+    if (user?.clientId || user?.trainerId) {
+      return {
+        props: {
+          trpcState: ssg.dehydrate(),
+          email,
+        },
+      };
+    } else {
+      return {
+        props: {
+          trpcState: ssg.dehydrate(),
+        },
+        redirect: {
+          destination: "/",
+          permanent: false,
+        },
+      };
+    }
   } else {
     return {
-      redirect: "/",
       props: {
         trpcState: ssg.dehydrate(),
+        email: null,
       },
     };
   }

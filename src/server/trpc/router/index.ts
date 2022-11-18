@@ -9,12 +9,14 @@ import { exerciseRouter } from "./exercise";
 import { setRouter } from "./set";
 import { clientRouter } from "./client";
 import { trainerRouter } from "./trainer";
+import { sessionRouter } from "./session";
 
 export const appRouter = t.router({
   example: exampleRouter,
   auth: authRouter,
   workout: workoutRouter,
   exercise: exerciseRouter,
+  session: sessionRouter,
   set: setRouter,
   user: userRouter,
   client: clientRouter,

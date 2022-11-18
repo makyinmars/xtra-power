@@ -224,7 +224,6 @@ export const getServerSideProps = async (
     });
 
     if (user?.clientId || user?.trainerId) {
-      console.log("User", user);
       return {
         props: {
           trpcState: ssg.dehydrate(),
@@ -243,7 +242,6 @@ export const getServerSideProps = async (
       },
     };
   } else {
-    console.log("HI");
     return {
       redirect: {
         destination: "/",

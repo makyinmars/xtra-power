@@ -8,7 +8,7 @@ test("Create a user and retrieve the new user", async () => {
     user: {
       id: "1",
       name: "Test User",
-      email: "test-1@gmail.com",
+      email: "test-7@gmail.com",
     },
     expires: new Date().toDateString(),
   };
@@ -32,7 +32,7 @@ test("Create a user and retrieve the new user", async () => {
 
   expect(user).toMatchObject(newUser);
 
-  await caller.user.deleteUser({ id: newUser.id });
+  await caller.user.deleteUser({ email: newUser.email as string });
 });
 
 test("Update a user and retrieve the updated user", async () => {
@@ -40,7 +40,7 @@ test("Update a user and retrieve the updated user", async () => {
     user: {
       id: "2",
       name: "Test User",
-      email: "test-2@gmail.com",
+      email: "test-8@gmail.com",
     },
     expires: new Date().toDateString(),
   };
@@ -70,7 +70,7 @@ test("Update a user and retrieve the updated user", async () => {
 
   expect(updatedUser).toMatchObject(user);
 
-  await caller.user.deleteUser({ id: newUser.id });
+  await caller.user.deleteUser({email: newUser.email as string});
 });
 
 test("Delete a user", async () => {
@@ -78,7 +78,7 @@ test("Delete a user", async () => {
     user: {
       id: "3",
       name: "Test User",
-      email: "test-3@gmail.com",
+      email: "test-9@gmail.com",
     },
     expires: new Date().toDateString(),
   };
@@ -91,12 +91,12 @@ test("Delete a user", async () => {
 
   const input: inferProcedureInput<AppRouter["user"]["createUser"]> = {
     name: "test",
-    email: "franklin@gmail.com",
+    email: "franklixxxn@gmail.com",
   };
 
   const newUser = await caller.user.createUser(input);
 
-  const deletedUser = await caller.user.deleteUser({ id: newUser.id });
+  const deletedUser = await caller.user.deleteUser({ email: newUser.email as string });
 
   expect(deletedUser).toMatchObject(newUser);
 });
