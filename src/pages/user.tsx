@@ -18,7 +18,8 @@ const User = ({
   const deleteClient = trpc.client.deleteClient.useMutation({
     async onSuccess() {
       await utils.user.getUserByEmail.invalidate();
-      await router.push("/");
+      await utils.auth.getSession.invalidate()
+      await router.push("/thank-you");
     },
   });
 
@@ -33,12 +34,11 @@ const User = ({
   const onDeleteUser = async (id: string) => {
     try {
       if (data?.clientId) {
-        const email = "x";
-        await deleteClient.mutateAsync({ email });
+        await deleteClient.mutateAsync({ id });
       } else if (data?.trainerId) {
         await deleteTrainer.mutateAsync({ id });
       }
-    } catch {}
+    } catch { }
   };
 
   return (
