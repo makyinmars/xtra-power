@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { GetServerSidePropsContext, InferGetServerSidePropsType } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
@@ -18,16 +17,6 @@ const Workout = ({
   const user = utils.user.getUserByEmail.getData({
     email,
   });
-
-  useEffect(() => {
-    if (user) {
-      if (user.trainerId) {
-        router.push("/");
-      }
-    } else {
-      router.push("/");
-    }
-  }, [router, user]);
 
   return (
     <Menu>
@@ -65,14 +54,38 @@ export const getServerSideProps = async (
 
   const email = session?.user?.email as string;
 
-  await ssg.user.getUserByEmail.prefetch({
-    email,
-  });
+  if (email) {
+    const user = await ssg.user.getUserByEmail.fetch({ email });
 
-  return {
-    props: {
-      trpcState: ssg.dehydrate(),
-      email: email ?? null,
-    },
-  };
+    if (user?.clientId) {
+      return {
+        props: {
+          trpcState: ssg.dehydrate(),
+          email,
+        },
+      };
+    } else {
+      return {
+        props: {
+          trpcState: ssg.dehydrate(),
+          email: null,
+        },
+        redirect: {
+          destination: "/",
+          permanent: false,
+        },
+      };
+    }
+  } else {
+    return {
+      props: {
+        trpcState: ssg.dehydrate(),
+        email: null,
+      },
+      redirect: {
+        destination: "/",
+        permanent: false,
+      },
+    };
+  }
 };

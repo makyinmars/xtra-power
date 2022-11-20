@@ -2,8 +2,6 @@ import Head from "next/head";
 
 import Menu from "src/components/menu";
 import { trpc } from "src/utils/trpc";
-import { useEffect } from "react";
-import { useRouter } from "next/router";
 import Spinner from "src/components/spinner";
 import { GetServerSidePropsContext, InferGetServerSidePropsType } from "next";
 import { ssrInit } from "src/utils/ssg";
@@ -11,42 +9,21 @@ import { ssrInit } from "src/utils/ssg";
 const ViewClients = ({
   email,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-  const router = useRouter();
   const utils = trpc.useContext();
   const user = utils.user.getUserByEmail.getData({
     email,
   });
 
-  const { data, isLoading, isError } = trpc.trainer.getTrainerClients.useQuery({
+  const data = utils.trainer.getTrainerClients.getData({
     trainerId: user?.trainerId as string,
   });
-
-  useEffect(() => {
-    if (!email) {
-      router.push("/");
-    }
-
-    if (user) {
-      if (user.clientId) {
-        router.push("/");
-      }
-    }
-  }, [email, router, user]);
 
   return (
     <Menu>
       <Head>
         <title>View Clients</title>
       </Head>
-      <div className="container mx-auto flex flex-col gap-4">
-        <h1 className="title-page">View Clients</h1>
-        {isLoading && <Spinner />}
-        {isError && (
-          <p className="text-center font-bold text-red-400 text-lg">
-            Error loading trainers
-          </p>
-        )}
-      </div>
+      <h1 className="title-page">View Clients</h1>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
         {data &&
@@ -74,14 +51,41 @@ export const getServerSideProps = async (
 
   const email = session?.user?.email as string;
 
-  await ssg.user.getUserByEmail.prefetch({
-    email,
-  });
+  if (email) {
+    const user = await ssg.user.getUserByEmail.fetch({ email });
 
-  return {
-    props: {
-      trpcState: ssg.dehydrate(),
-      email: email ?? null,
-    },
-  };
+    if (user?.trainerId) {
+      await ssg.trainer.getTrainerClients.prefetch({
+        trainerId: user.trainerId,
+      });
+      return {
+        props: {
+          trpcState: ssg.dehydrate(),
+          email,
+        },
+      };
+    } else {
+      return {
+        props: {
+          trpcState: ssg.dehydrate(),
+          email: null,
+        },
+        redirect: {
+          destination: "/",
+          permanent: false,
+        },
+      };
+    }
+  } else {
+    return {
+      props: {
+        trpcState: ssg.dehydrate(),
+        email: null,
+      },
+      redirect: {
+        destination: "/",
+        permanent: false,
+      },
+    };
+  }
 };
