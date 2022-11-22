@@ -12,12 +12,16 @@ interface EditUserInputs {
 }
 
 interface EditUserProps {
-  userId: string;
-  name: string;
+  email: string;
 }
-const EditUser = ({ userId, name }: EditUserProps) => {
+
+const EditUser = ({ email }: EditUserProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const utils = trpc.useContext();
+
+  const user = utils.user.getUserByEmail.getData({ email });
+
+  console.log("User", user);
 
   const updateUser = trpc.user.updateUser.useMutation({
     async onSuccess() {
@@ -33,7 +37,7 @@ const EditUser = ({ userId, name }: EditUserProps) => {
 
   const onSubmit: SubmitHandler<EditUserInputs> = async (data) => {
     try {
-      data.id = userId;
+      data.id = user?.id as string;
       const newUser = await updateUser.mutateAsync(data);
       if (newUser) {
         setIsOpen(false);
@@ -115,7 +119,7 @@ const EditUser = ({ userId, name }: EditUserProps) => {
                           className="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight shadow focus:outline-none"
                           id="name"
                           type="text"
-                          defaultValue={name}
+                          defaultValue={user?.name as string}
                           placeholder="Name"
                           {...register("name", { required: true })}
                         />
