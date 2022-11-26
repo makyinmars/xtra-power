@@ -28,7 +28,7 @@ export const trainerRouter = t.router({
           message: "Failed to create trainer",
         });
       } else {
-        await ctx.prisma.user.update({
+        const trainerUpdated = await ctx.prisma.user.update({
           where: {
             id: userId,
           },
@@ -37,7 +37,7 @@ export const trainerRouter = t.router({
           },
         });
 
-        return trainer;
+        return trainerUpdated;
       }
     }),
 

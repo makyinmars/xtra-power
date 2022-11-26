@@ -14,13 +14,25 @@ const SelectTrainer = ({
   const utils = trpc.useContext();
 
   const { data, isLoading, isError } = trpc.trainer.getTrainers.useQuery();
+  const {
+    data: trainerData,
+    isLoading: trainerIsLoading,
+    isError: trainerIsError,
+  } = trpc.client.getTrainer.useQuery({
+    email,
+  });
+  const user = utils.user.getUserByEmail.getData({
+    email,
+  });
+
+  console.log("user", user);
 
   const addTrainer = trpc.client.addTrainer.useMutation({
     async onSuccess() {
       await utils.user.getUserByEmail.invalidate();
       await utils.trainer.getTrainers.invalidate();
       // Fix this function
-      /* await utils.client.getTrainer.invalidate(); */
+      // await utils.client.getTrainer.invalidate();
     },
   });
 
@@ -29,27 +41,15 @@ const SelectTrainer = ({
       await utils.user.getUserByEmail.invalidate();
       await utils.trainer.getTrainers.invalidate();
       // Fix this function
-      /* await utils.client.getTrainer.invalidate(); */
+      // await utils.client.getTrainer.invalidate();
     },
-  });
-
-  const user = utils.user.getUserByEmail.getData({
-    email,
-  });
-
-  const {
-    data: trainerData,
-    isLoading: trainerIsLoading,
-    isError: trainerIsError,
-  } = trpc.client.getTrainer.useQuery({
-    email,
   });
 
   const onTrainerSelect = async (trainerId: string) => {
     try {
       if (user) {
         await addTrainer.mutateAsync({
-          userId: user.id as string,
+          clientId: user.clientId as string,
           trainerId,
         });
       }
@@ -60,7 +60,7 @@ const SelectTrainer = ({
     try {
       if (user) {
         const trainer = await removeTrainer.mutateAsync({
-          userId: user.id as string,
+          clientId: user.clientId as string,
           trainerId,
         });
 
@@ -70,6 +70,8 @@ const SelectTrainer = ({
       }
     } catch {}
   };
+
+  console.log("Client", trainerData);
 
   return (
     <Menu>
@@ -108,7 +110,7 @@ const SelectTrainer = ({
           )}
         </div>
         <div className="container mx-auto flex flex-col gap-4">
-          <h2 className="title-page">View Trainers</h2>
+          <h2 className="title-page">View Active Trainers</h2>
           {isLoading && <Spinner />}
           {isError && (
             <p className="text-center font-bold text-red-400 text-lg">

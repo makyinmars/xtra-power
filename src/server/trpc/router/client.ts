@@ -14,115 +14,153 @@ export const clientRouter = t.router({
       })
     )
     .mutation(async ({ ctx, input: { name, email, image, userId } }) => {
-      const clientExist = await ctx.prisma.client.findUnique({
+      const user = await ctx.prisma.user.findUnique({
         where: {
-          email: email as string,
+          id: userId,
         },
       });
 
-      if (clientExist) {
-        return await ctx.prisma.user.update({
-          where: {
-            id: userId,
-          },
-          data: {
-            clientId: clientExist.id,
-          },
+      if (!user) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "User does not exist",
         });
       }
 
-      const client = await ctx.prisma.client.create({
-        data: {
-          name,
-          email,
-          image,
-        },
-      });
-
-      if (!client) {
+      if (user?.clientId) {
         throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to create client",
+          code: "BAD_REQUEST",
+          message: "Client already exists",
         });
       } else {
-        // Update the user's client Id
-        await ctx.prisma.user.update({
+        // update user with client id
+        const userUpdate = await ctx.prisma.user.update({
           where: {
             id: userId,
           },
           data: {
-            clientId: client.id,
+            clientId: userId,
           },
         });
 
-        return client;
+        return userUpdate;
       }
     }),
 
   addTrainer: authedProcedure
     .input(
       z.object({
-        userId: z.string(),
+        clientId: z.string(),
         trainerId: z.string(),
       })
     )
-    .mutation(({ ctx, input: { userId, trainerId } }) => {
-      const clientUpdate = ctx.prisma.client.update({
+    .mutation(async ({ ctx, input: { clientId, trainerId } }) => {
+      // Update the user model with the trainerId and clientId
+      const user = await ctx.prisma.user.update({
         where: {
-          userId: userId as string,
+          clientId,
         },
-        data: {
-          trainerId: trainerId,
-        },
-      });
 
-      const trainerUpdate = ctx.prisma.trainer.update({
-        where: {
-          id: trainerId,
-        },
         data: {
-          clients: {
+          trainer: {
             connect: {
-              userId: userId,
+              id: trainerId,
             },
           },
         },
       });
 
-      return Promise.all([clientUpdate, trainerUpdate]);
+      if (!user) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to add trainer",
+        });
+      }
+
+      return user;
+
+      // // Check if the trainer is already added
+      // const trainerExist = await ctx.prisma.client.findUnique({
+      //   where: {
+      //     id: clientId,
+      //   },
+      //   select: {
+      //     trainerId: true,
+      //   },
+      // });
+
+      // if (trainerExist?.trainerId) {
+      //   throw new TRPCError({
+      //     code: "BAD_REQUEST",
+      //     message: "Trainer already added",
+      //   });
+      // }
+
+      // const client = await ctx.prisma.client.update({
+      //   where: {
+      //     id: clientId,
+      //   },
+      //   data: {
+      //     trainerId,
+      //   },
+      // });
+
+      // if (!client) {
+      //   throw new TRPCError({
+      //     code: "INTERNAL_SERVER_ERROR",
+      //     message: "Failed to add trainer",
+      //   });
+      // }
+
+      // return client;
     }),
 
   removeTrainer: authedProcedure
     .input(
       z.object({
-        userId: z.string(),
+        clientId: z.string(),
         trainerId: z.string(),
       })
     )
-    .mutation(({ ctx, input: { userId, trainerId } }) => {
-      const clientUpdate = ctx.prisma.client.update({
+    .mutation(async ({ ctx, input: { clientId, trainerId } }) => {
+      // Remove the trainer from the client, if the trainerId matches
+      const client = await ctx.prisma.client.update({
         where: {
-          userId,
+          id: clientId,
         },
         data: {
           trainerId: null,
         },
       });
 
-      const trainerUpdate = ctx.prisma.trainer.update({
+      if (!client) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to remove trainer",
+        });
+      }
+
+      // Remove the client from the trainer, if the clientId matches
+      const trainer = await ctx.prisma.trainer.update({
         where: {
           id: trainerId,
         },
         data: {
           clients: {
             disconnect: {
-              userId: userId,
+              id: clientId,
             },
           },
         },
       });
 
-      return Promise.all([clientUpdate, trainerUpdate]);
+      if (!trainer) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to remove client",
+        });
+      }
+      return client;
     }),
 
   // Fix this function
@@ -133,19 +171,21 @@ export const clientRouter = t.router({
       })
     )
     .query(async ({ ctx, input: { email } }) => {
-      const client = await ctx.prisma.client.findUnique({
-        where: {
-          email: email as string,
-        },
-      });
-
-      if (client && client.trainerId) {
-        const trainer = await ctx.prisma.trainer.findUnique({
+      if (email) {
+        const client = await ctx.prisma.client.findUnique({
           where: {
-            id: client.trainerId as string,
+            email,
           },
         });
-        return trainer;
+
+        if (client && client.trainerId) {
+          const trainer = await ctx.prisma.trainer.findUnique({
+            where: {
+              id: client.trainerId as string,
+            },
+          });
+          return trainer;
+        }
       }
     }),
 
@@ -156,20 +196,22 @@ export const clientRouter = t.router({
       })
     )
     .query(({ ctx, input: { email } }) => {
-      const client = ctx.prisma.client.findUnique({
-        where: {
-          email,
-        },
-      });
-
-      if (!client) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to create client",
+      if (email) {
+        const client = ctx.prisma.client.findUnique({
+          where: {
+            email,
+          },
         });
-      }
 
-      return client;
+        if (!client) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to create client",
+          });
+        }
+
+        return client;
+      }
     }),
 
   deleteClient: authedProcedure

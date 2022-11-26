@@ -51,32 +51,20 @@ model User {
   email         String?   @unique
   emailVerified DateTime?
   image         String?
+  workout       Workout[]
   accounts      Account[]
   sessions      Session[]
-  trainer       Trainer?  @relation(fields: [trainerId], references: [id], onDelete: Cascade)
-  trainerId     String?   @unique
-  client        Client?   @relation(fields: [clientId], references: [id], onDelete: Cascade)
   clientId      String?   @unique
+  trainer       Trainer?  @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  trainerId     String?
 }
 
 model Trainer {
-  id      String   @id @default(cuid())
-  name    String?
-  email   String?  @unique
-  image   String?
-  clients Client[]
-  user    User?
-}
-
-model Client {
-  id        String    @id @default(cuid())
-  name      String?
-  email     String?   @unique
-  image     String?
-  trainer   Trainer?  @relation(fields: [trainerId], references: [id], onDelete: Cascade)
-  workout   Workout[]
-  trainerId String?
-  user      User?
+  id    String  @id @default(cuid())
+  name  String?
+  email String? @unique
+  image String?
+  users User[]
 }
 
 model VerificationToken {
@@ -94,8 +82,8 @@ model Workout {
   exercises   Exercise[]
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
-  client      Client?    @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  clientId    String?
+  user        User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String?
 }
 
 model Exercise {

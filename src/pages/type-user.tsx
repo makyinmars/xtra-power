@@ -3,7 +3,7 @@ import {
   GetServerSidePropsContext,
   InferGetServerSidePropsType,
 } from "next/types";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useState } from "react";
 import { BsCheckLg } from "react-icons/bs";
 import { useRouter } from "next/router";
 import Head from "next/head";
@@ -78,16 +78,6 @@ const TypeUser = ({
   const closeModal = () => {
     router.push("/");
   };
-
-  /* useEffect(() => { */
-  /*   if (!email) { */
-  /*     router.push("/"); */
-  /*   } */
-  /**/
-  /*   if (userData?.clientId || userData?.trainerId) { */
-  /*     router.push("/"); */
-  /*   } */
-  /* }, [email, router, userData]); */
 
   return (
     <>
