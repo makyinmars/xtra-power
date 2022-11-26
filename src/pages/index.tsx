@@ -3,7 +3,7 @@ import { FaDiscord } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import Image from "next/image";
 import Head from "next/head";
-import { signIn, signOut } from "next-auth/react";
+import { signIn, signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 
 import { ssrInit } from "src/utils/ssg";
@@ -15,7 +15,8 @@ const Home = ({
   const utils = trpc.useContext();
 
   const user = utils.user.getUserByEmail.getData({ email });
-  const session = utils.auth.getSession.getData();
+
+  const { data: session } = useSession();
 
   return (
     <>
@@ -118,8 +119,6 @@ export const getServerSideProps = async (
     const user = await ssg.user.getUserByEmail.fetch({
       email,
     });
-
-    await ssg.auth.getSession.prefetch();
 
     if (user?.clientId || user?.trainerId) {
       return {

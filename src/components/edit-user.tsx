@@ -21,8 +21,6 @@ const EditUser = ({ email }: EditUserProps) => {
 
   const user = utils.user.getUserByEmail.getData({ email });
 
-  console.log("User", user);
-
   const updateUser = trpc.user.updateUser.useMutation({
     async onSuccess() {
       await utils.user.getUserByEmail.invalidate();

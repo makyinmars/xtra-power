@@ -69,7 +69,7 @@ export const clientRouter = t.router({
     .mutation(({ ctx, input: { userId, trainerId } }) => {
       const clientUpdate = ctx.prisma.client.update({
         where: {
-          userId: userId,
+          userId: userId as string,
         },
         data: {
           trainerId: trainerId,
@@ -129,13 +129,13 @@ export const clientRouter = t.router({
   getTrainer: authedProcedure
     .input(
       z.object({
-        email: z.string(),
+        email: z.string().nullable().nullish(),
       })
     )
     .query(async ({ ctx, input: { email } }) => {
       const client = await ctx.prisma.client.findUnique({
         where: {
-          email,
+          email: email as string,
         },
       });
 
@@ -145,7 +145,6 @@ export const clientRouter = t.router({
             id: client.trainerId as string,
           },
         });
-
         return trainer;
       }
     }),

@@ -1,7 +1,6 @@
 import { GetServerSidePropsContext, InferGetServerSidePropsType } from "next";
 import { useRouter } from "next/router";
 import Head from "next/head";
-import { useEffect } from "react";
 
 import Menu from "src/components/menu";
 import Spinner from "src/components/spinner";
@@ -71,16 +70,6 @@ const SelectTrainer = ({
       }
     } catch {}
   };
-
-  useEffect(() => {
-    if (user) {
-      if (user.trainerId) {
-        router.push("/");
-      }
-    } else {
-      router.push("/");
-    }
-  }, [router, user]);
 
   return (
     <Menu>
@@ -161,22 +150,44 @@ export const getServerSideProps = async (
 
   const email = session?.user?.email as string;
 
-  await ssg.user.getUserByEmail.prefetch({
-    email,
-  });
+  if (email) {
+    const user = await ssg.user.getUserByEmail.fetch({
+      email,
+    });
 
-  await ssg.client.getClient.prefetch({
-    email,
-  });
+    if (user?.clientId) {
+      await ssg.client.getTrainer.prefetch({
+        email,
+      });
+      await ssg.trainer.getTrainers.prefetch();
+      return {
+        props: {
+          trpcState: ssg.dehydrate(),
+          email,
+        },
+      };
+    } else {
+      return {
+        props: {
+          trpcState: ssg.dehydrate(),
+        },
+        redirect: {
+          destination: "/",
+          permanent: false,
+        },
+      };
+    }
+  } else {
+    return {
+      props: {
+        trpcState: ssg.dehydrate(),
+        email: null,
+      },
 
-  await ssg.client.getTrainer.prefetch({
-    email,
-  });
-
-  return {
-    props: {
-      trpcState: ssg.dehydrate(),
-      email: email ?? null,
-    },
-  };
+      redirect: {
+        destination: "/",
+        permanent: false,
+      },
+    };
+  }
 };
