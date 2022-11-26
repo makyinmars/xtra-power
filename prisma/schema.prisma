@@ -55,7 +55,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   clientId      String?   @unique
-  trainer       Trainer?  @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  trainer       Trainer?  @relation(fields: [trainerId], references: [id], onUpdate: Cascade, onDelete: Cascade)
   trainerId     String?
 }
 

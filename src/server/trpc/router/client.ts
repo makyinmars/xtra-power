@@ -78,41 +78,6 @@ export const clientRouter = t.router({
       }
 
       return user;
-
-      // // Check if the trainer is already added
-      // const trainerExist = await ctx.prisma.client.findUnique({
-      //   where: {
-      //     id: clientId,
-      //   },
-      //   select: {
-      //     trainerId: true,
-      //   },
-      // });
-
-      // if (trainerExist?.trainerId) {
-      //   throw new TRPCError({
-      //     code: "BAD_REQUEST",
-      //     message: "Trainer already added",
-      //   });
-      // }
-
-      // const client = await ctx.prisma.client.update({
-      //   where: {
-      //     id: clientId,
-      //   },
-      //   data: {
-      //     trainerId,
-      //   },
-      // });
-
-      // if (!client) {
-      //   throw new TRPCError({
-      //     code: "INTERNAL_SERVER_ERROR",
-      //     message: "Failed to add trainer",
-      //   });
-      // }
-
-      // return client;
     }),
 
   removeTrainer: authedProcedure
@@ -141,25 +106,6 @@ export const clientRouter = t.router({
       }
 
       // Remove the client from the trainer, if the clientId matches
-      const trainer = await ctx.prisma.trainer.update({
-        where: {
-          id: trainerId,
-        },
-        data: {
-          clients: {
-            disconnect: {
-              id: clientId,
-            },
-          },
-        },
-      });
-
-      if (!trainer) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to remove client",
-        });
-      }
       return client;
     }),
 

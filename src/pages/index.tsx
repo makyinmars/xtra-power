@@ -35,12 +35,12 @@ const Home = ({
         {session ? (
           <div className="flex flex-col gap-4">
             <h2 className="text-xl text-slate-900 text-center">
-              Signed in as {session.user?.name}
+              Signed in as {user?.name}
             </h2>
             <div className="self-center w-40 h-40">
               <Image
-                src={session.user?.image as string}
-                alt={session.user?.name as string}
+                src={user?.image as string}
+                alt={user?.name as string}
                 className="rounded-full mx-auto "
                 width={200}
                 height={200}

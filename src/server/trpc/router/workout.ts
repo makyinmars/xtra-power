@@ -1,5 +1,7 @@
-import { t, authedProcedure } from "../trpc";
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+
+import { t, authedProcedure } from "../trpc";
 
 export const workoutRouter = t.router({
   getWorkouts: authedProcedure.query(({ ctx }) => {
@@ -10,16 +12,23 @@ export const workoutRouter = t.router({
     });
   }),
   getWorkoutById: authedProcedure
-    .input(z.object({ id: z.string() }))
-    .query(({ ctx, input }) => {
-      return ctx.prisma.workout.findFirst({
-        where: {
-          id: input.id,
-        },
-        include: {
-          exercises: true,
-        },
-      });
+    .input(z.object({ id: z.string().nullable().nullish() }))
+    .query(({ ctx, input: { id } }) => {
+      if (id) {
+        return ctx.prisma.workout.findFirst({
+          where: {
+            id,
+          },
+          include: {
+            exercises: true,
+          },
+        });
+      } else {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Workout does not exist",
+        });
+      }
     }),
   updateWorkout: authedProcedure
     .input(
@@ -48,17 +57,17 @@ export const workoutRouter = t.router({
   createWorkout: authedProcedure
     .input(
       z.object({
-        clientId: z.string(),
+        userId: z.string(),
         name: z.string(),
         description: z.string(),
       })
     )
-    .mutation(({ ctx, input: { clientId, name, description } }) => {
+    .mutation(({ ctx, input: { userId, name, description } }) => {
       return ctx.prisma.workout.create({
         data: {
           name,
           description,
-          clientId,
+          userId,
         },
       });
     }),

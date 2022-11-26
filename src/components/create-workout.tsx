@@ -4,16 +4,16 @@ import { useRouter } from "next/router";
 import { trpc } from "src/utils/trpc";
 
 interface CWProps {
-  clientId: string;
+  userId: string;
 }
 
 interface WorkoutInput {
-  clientId: string;
+  userId: string;
   name: string;
   description: string;
 }
 
-const CreateWorkout = ({ clientId }: CWProps) => {
+const CreateWorkout = ({ userId }: CWProps) => {
   const {
     register,
     handleSubmit,
@@ -32,12 +32,12 @@ const CreateWorkout = ({ clientId }: CWProps) => {
 
   const onSubmit: SubmitHandler<WorkoutInput> = async (data) => {
     try {
-      data.clientId = clientId;
+      data.userId = userId;
       const newWorkout = await createWorkout.mutateAsync(data);
       if (newWorkout) {
         router.push(`/workout/${newWorkout.id}`);
       }
-    } catch { }
+    } catch {}
   };
   return (
     <>

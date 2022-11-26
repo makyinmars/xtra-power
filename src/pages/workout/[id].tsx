@@ -1,5 +1,3 @@
-import { useRouter } from "next/router";
-import { useEffect } from "react";
 import { GetServerSidePropsContext, InferGetServerSidePropsType } from "next";
 import Head from "next/head";
 
@@ -12,29 +10,11 @@ import Sets from "src/components/sets";
 import { ssrInit } from "src/utils/ssg";
 
 const WorkoutId = ({
-  email,
   id,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-  const router = useRouter();
-  const utils = trpc.useContext();
-
   const { data, isError, isLoading } = trpc.workout.getWorkoutById.useQuery({
     id,
   });
-
-  const user = utils.user.getUserByEmail.getData({
-    email,
-  });
-
-  useEffect(() => {
-    if (user) {
-      if (user.trainerId) {
-        router.push("/");
-      }
-    } else {
-      router.push("/");
-    }
-  }, [router, user]);
 
   return (
     <Menu>
@@ -84,21 +64,42 @@ export const getServerSideProps = async (
 
   const email = session?.user?.email as string;
 
-  const id = context.params?.id as string;
-
-  await ssg.user.getUserByEmail.prefetch({
-    email,
-  });
-
-  await ssg.workout.getWorkoutById.prefetch({
-    id,
-  });
-
-  return {
-    props: {
-      trpcState: ssg.dehydrate(),
-      email: email ?? null,
+  if (email) {
+    const user = await ssg.user.getUserByEmail.fetch({ email });
+    const id = context.params?.id as string;
+    await ssg.workout.getWorkoutById.prefetch({
       id,
-    },
-  };
+    });
+
+    if (user?.clientId) {
+      return {
+        props: {
+          trpcState: ssg.dehydrate(),
+          id,
+        },
+      };
+    } else {
+      return {
+        props: {
+          trpcState: ssg.dehydrate(),
+          id: null,
+        },
+        redirect: {
+          destination: "/",
+          permanent: false,
+        },
+      };
+    }
+  } else {
+    return {
+      props: {
+        trpcState: ssg.dehydrate(),
+        id: null,
+      },
+      redirect: {
+        destination: "/",
+        permanent: false,
+      },
+    };
+  }
 };

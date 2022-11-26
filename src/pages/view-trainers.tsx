@@ -25,8 +25,6 @@ const SelectTrainer = ({
     email,
   });
 
-  console.log("user", user);
-
   const addTrainer = trpc.client.addTrainer.useMutation({
     async onSuccess() {
       await utils.user.getUserByEmail.invalidate();

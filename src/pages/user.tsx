@@ -13,7 +13,7 @@ const User = ({
   const router = useRouter();
   const utils = trpc.useContext();
 
-  const { data } = trpc.user.getUserByEmail.useQuery({ email })
+  const { data } = trpc.user.getUserByEmail.useQuery({ email });
 
   const deleteClient = trpc.client.deleteClient.useMutation({
     async onSuccess() {
@@ -38,7 +38,7 @@ const User = ({
       } else if (data?.trainerId) {
         await deleteTrainer.mutateAsync({ id });
       }
-    } catch { }
+    } catch {}
   };
 
   return (
@@ -55,7 +55,6 @@ const User = ({
             <span className="font-bold">Name:</span>{" "}
             <span className="font-semibold">{data.name}</span>
           </h3>
-          {/* Pass the user */}
           <EditUser email={email as string} />
           <div className="flex justify-center">
             <button
