@@ -13,14 +13,13 @@ const SelectTrainer = ({
   const router = useRouter();
   const utils = trpc.useContext();
 
-  const { data, isLoading, isError } = trpc.trainer.getTrainers.useQuery();
   const {
-    data: trainerData,
-    isLoading: trainerIsLoading,
-    isError: trainerIsError,
-  } = trpc.client.getTrainer.useQuery({
-    email,
-  });
+    data: myTrainerData,
+    isLoading: myTrainerIsLoading,
+    isError: myTrainerIsError,
+  } = trpc.client.getMyTrainer.useQuery({ email });
+
+  const { data, isLoading, isError } = trpc.trainer.getTrainers.useQuery();
   const user = utils.user.getUserByEmail.getData({
     email,
   });
@@ -29,8 +28,6 @@ const SelectTrainer = ({
     async onSuccess() {
       await utils.user.getUserByEmail.invalidate();
       await utils.trainer.getTrainers.invalidate();
-      // Fix this function
-      // await utils.client.getTrainer.invalidate();
     },
   });
 
@@ -38,18 +35,20 @@ const SelectTrainer = ({
     async onSuccess() {
       await utils.user.getUserByEmail.invalidate();
       await utils.trainer.getTrainers.invalidate();
-      // Fix this function
-      // await utils.client.getTrainer.invalidate();
     },
   });
 
   const onTrainerSelect = async (trainerId: string) => {
     try {
       if (user) {
-        await addTrainer.mutateAsync({
-          clientId: user.clientId as string,
-          trainerId,
-        });
+        await addTrainer
+          .mutateAsync({
+            userId: user.id as string,
+            trainerId,
+          })
+          .then(() => {
+            router.push("/view-trainers");
+          });
       }
     } catch {}
   };
@@ -57,19 +56,17 @@ const SelectTrainer = ({
   const onTrainerRemove = async (trainerId: string) => {
     try {
       if (user) {
-        const trainer = await removeTrainer.mutateAsync({
-          clientId: user.clientId as string,
-          trainerId,
-        });
-
-        if (trainer) {
-          router.push("/");
-        }
+        await removeTrainer
+          .mutateAsync({
+            userId: user.id as string,
+            trainerId,
+          })
+          .then(() => {
+            router.push("/");
+          });
       }
     } catch {}
   };
-
-  console.log("Client", trainerData);
 
   return (
     <Menu>
@@ -78,37 +75,41 @@ const SelectTrainer = ({
       </Head>
       <div className="flex flex-col gap-2">
         <div className="container mx-auto flex flex-col gap-4">
-          <h2 className="title-page">My Trainer</h2>
-          {trainerIsLoading && <Spinner />}
-          {trainerIsError && (
+          <h2 className="title-page text-3xl">My Trainer</h2>
+          {myTrainerIsLoading && <Spinner />}
+          {myTrainerIsError && (
             <p className="text-center font-bold text-red-400 text-lg">
               You do not have a trainer yet
             </p>
           )}
 
-          {trainerData && (
+          {myTrainerData ? (
             <div className="flex flex-col gap-2 bg-slate-700 text-slate-200 mx-auto p-2 rounded">
-              <p className="text-center ext-lg">
+              <p className="text-center text-lg">
                 Your trainer is{" "}
-                <span className="font-bold">{trainerData.name}</span>
+                <span className="font-bold">{myTrainerData.name}</span>
               </p>
               <p className="text-center text-lg">
                 Your trainer{`'`}s email is{" "}
-                <span className="font-bold">{trainerData.email}</span>
+                <span className="font-bold">{myTrainerData.email}</span>
               </p>
               <div className="flex justify-center">
                 <button
                   className="button bg-slate-200 text-slate-700 w-full p-1 hover:bg-slate-300 hover:text-slate-800"
-                  onClick={() => onTrainerRemove(trainerData.id)}
+                  onClick={() => onTrainerRemove(myTrainerData.id)}
                 >
                   Remove Trainer
                 </button>
               </div>
             </div>
+          ) : (
+            <p className="text-center font-bold text-red-400 text-lg">
+              You do not have a trainer yet
+            </p>
           )}
         </div>
         <div className="container mx-auto flex flex-col gap-4">
-          <h2 className="title-page">View Active Trainers</h2>
+          <h2 className="title-page text-3xl">View Active Trainers</h2>
           {isLoading && <Spinner />}
           {isError && (
             <p className="text-center font-bold text-red-400 text-lg">
@@ -156,10 +157,8 @@ export const getServerSideProps = async (
     });
 
     if (user?.clientId) {
-      await ssg.client.getTrainer.prefetch({
-        email,
-      });
       await ssg.trainer.getTrainers.prefetch();
+      await ssg.client.getMyTrainer.prefetch({ email });
       return {
         props: {
           trpcState: ssg.dehydrate(),

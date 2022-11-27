@@ -41,12 +41,8 @@ export const trainerRouter = t.router({
       }
     }),
 
-  getTrainers: authedProcedure.query(async ({ ctx }) => {
-    const trainers = await ctx.prisma.trainer.findMany({
-      include: {
-        user: true,
-      },
-    });
+  getTrainers: authedProcedure.query(({ ctx }) => {
+    const trainers = ctx.prisma.trainer.findMany({});
 
     if (!trainers) {
       throw new TRPCError({

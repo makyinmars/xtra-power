@@ -50,15 +50,15 @@ export const clientRouter = t.router({
   addTrainer: authedProcedure
     .input(
       z.object({
-        clientId: z.string(),
+        userId: z.string(),
         trainerId: z.string(),
       })
     )
-    .mutation(async ({ ctx, input: { clientId, trainerId } }) => {
+    .mutation(({ ctx, input: { userId, trainerId } }) => {
       // Update the user model with the trainerId and clientId
-      const user = await ctx.prisma.user.update({
+      const user = ctx.prisma.user.update({
         where: {
-          clientId,
+          id: userId,
         },
 
         data: {
@@ -77,62 +77,32 @@ export const clientRouter = t.router({
         });
       }
 
+      console.log("user", user);
+
       return user;
     }),
 
   removeTrainer: authedProcedure
     .input(
       z.object({
-        clientId: z.string(),
+        userId: z.string(),
         trainerId: z.string(),
       })
     )
-    .mutation(async ({ ctx, input: { clientId, trainerId } }) => {
-      // Remove the trainer from the client, if the trainerId matches
-      const client = await ctx.prisma.client.update({
+    .mutation(({ ctx, input: { userId, trainerId } }) => {
+      // Remove the userId from the trainer model based on the trainerId
+      return ctx.prisma.trainer.update({
         where: {
-          id: clientId,
+          id: trainerId,
         },
         data: {
-          trainerId: null,
+          users: {
+            disconnect: {
+              id: userId,
+            },
+          },
         },
       });
-
-      if (!client) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to remove trainer",
-        });
-      }
-
-      // Remove the client from the trainer, if the clientId matches
-      return client;
-    }),
-
-  // Fix this function
-  getTrainer: authedProcedure
-    .input(
-      z.object({
-        email: z.string().nullable().nullish(),
-      })
-    )
-    .query(async ({ ctx, input: { email } }) => {
-      if (email) {
-        const client = await ctx.prisma.client.findUnique({
-          where: {
-            email,
-          },
-        });
-
-        if (client && client.trainerId) {
-          const trainer = await ctx.prisma.trainer.findUnique({
-            where: {
-              id: client.trainerId as string,
-            },
-          });
-          return trainer;
-        }
-      }
     }),
 
   getClient: authedProcedure
@@ -190,6 +160,41 @@ export const clientRouter = t.router({
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Failed to delete trainer",
+        });
+      }
+    }),
+
+  getMyTrainer: authedProcedure
+    .input(
+      z.object({
+        email: z.string().nullable().nullish(),
+      })
+    )
+    .query(({ ctx, input: { email } }) => {
+      // Go through the trainer table and find the user with the userId
+      if (email) {
+        const trainer = ctx.prisma.trainer.findFirst({
+          where: {
+            users: {
+              some: {
+                email,
+              },
+            },
+          },
+        });
+
+        if (!trainer) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to get trainer",
+          });
+        }
+
+        return trainer;
+      } else {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to get email",
         });
       }
     }),
