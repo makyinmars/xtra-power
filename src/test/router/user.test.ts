@@ -5,6 +5,7 @@ import { createContextInner } from "src/server/trpc/context";
 import { AppRouter, appRouter } from "src/server/trpc/router/index";
 import { session } from "src/utils/test-data";
 
+// Uncomment for full test coverage
 test("Create user", async () => {
   const ctx = await createContextInner({ session });
   const caller = appRouter.createCaller(ctx);
@@ -54,6 +55,7 @@ test("Update user name", async () => {
   expect(userUpdated.name).toEqual(input.name);
 });
 
+// Uncomment for full test coverage
 test("Delete user", async () => {
   const ctx = await createContextInner({ session });
 
