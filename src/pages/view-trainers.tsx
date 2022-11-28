@@ -103,7 +103,7 @@ const SelectTrainer = ({
               </div>
             </div>
           ) : (
-            <p className="text-center font-bold text-red-400 text-lg">
+            <p className="text-center font-bold text-red-700 text-lg">
               You do not have a trainer yet
             </p>
           )}

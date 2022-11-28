@@ -11,33 +11,18 @@ const User = ({
   email,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   const router = useRouter();
-  const utils = trpc.useContext();
 
   const { data } = trpc.user.getUserByEmail.useQuery({ email });
 
-  const deleteClient = trpc.client.deleteClient.useMutation({
+  const deleteUser = trpc.user.deleteUser.useMutation({
     async onSuccess() {
-      await utils.user.getUserByEmail.invalidate();
-      await utils.auth.getSession.invalidate();
-      await router.push("/thank-you");
+      router.push("/thank-you");
     },
   });
 
-  const deleteTrainer = trpc.trainer.deleteTrainer.useMutation({
-    async onSuccess() {
-      await utils.user.getUserByEmail.invalidate();
-      await utils.auth.getSession.invalidate();
-      await router.push("/thank-you");
-    },
-  });
-
-  const onDeleteUser = async (id: string) => {
+  const onDeleteUser = async (email: string) => {
     try {
-      if (data?.clientId) {
-        await deleteClient.mutateAsync({ id });
-      } else if (data?.trainerId) {
-        await deleteTrainer.mutateAsync({ id });
-      }
+      await deleteUser.mutateAsync({ email });
     } catch {}
   };
 
@@ -59,7 +44,7 @@ const User = ({
           <div className="flex justify-center">
             <button
               className="button w-60"
-              onClick={() => onDeleteUser(data.id)}
+              onClick={() => onDeleteUser(data.email as string)}
             >
               Delete User
             </button>

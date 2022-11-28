@@ -54,56 +54,34 @@ export const trainerRouter = t.router({
     return trainers;
   }),
 
-  getTrainerClients: authedProcedure
+  getMyClients: authedProcedure
     .input(
       z.object({
-        trainerId: z.string(),
+        email: z.string().nullable().nullish(),
       })
     )
-    .query(({ ctx, input: { trainerId } }) => {
-      const clients = ctx.prisma.client.findMany({
+    .query(({ ctx, input: { email } }) => {
+      const clients = ctx.prisma.trainer.findMany({
         where: {
-          trainerId: trainerId,
+          email,
         },
         include: {
-          user: true,
+          users: true,
         },
       });
 
       return clients;
     }),
 
-  deleteTrainer: authedProcedure
-    .input(
-      z.object({
-        id: z.string(),
-      })
-    )
-    .mutation(async ({ ctx, input: { id } }) => {
-      const user = await ctx.prisma.user.findFirst({
-        where: {
-          id,
+  getClients: authedProcedure.query(({ ctx }) => {
+    const clients = ctx.prisma.user.findMany({
+      where: {
+        clientId: {
+          not: null,
         },
-      });
+      },
+    });
 
-      if (!user) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to delete trainer",
-        });
-      }
-
-      const trainer = await ctx.prisma.trainer.delete({
-        where: {
-          id: user.trainerId as string,
-        },
-      });
-
-      if (!trainer) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to delete trainer",
-        });
-      }
-    }),
+    return clients;
+  }),
 });

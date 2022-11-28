@@ -7,13 +7,10 @@ export const clientRouter = t.router({
   createClient: authedProcedure
     .input(
       z.object({
-        name: z.string().nullable(),
-        email: z.string().nullable(),
-        image: z.string().nullable(),
         userId: z.string(),
       })
     )
-    .mutation(async ({ ctx, input: { name, email, image, userId } }) => {
+    .mutation(async ({ ctx, input: { userId } }) => {
       const user = await ctx.prisma.user.findUnique({
         where: {
           id: userId,
@@ -103,65 +100,6 @@ export const clientRouter = t.router({
           },
         },
       });
-    }),
-
-  getClient: authedProcedure
-    .input(
-      z.object({
-        email: z.string(),
-      })
-    )
-    .query(({ ctx, input: { email } }) => {
-      if (email) {
-        const client = ctx.prisma.client.findUnique({
-          where: {
-            email,
-          },
-        });
-
-        if (!client) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Failed to create client",
-          });
-        }
-
-        return client;
-      }
-    }),
-
-  deleteClient: authedProcedure
-    .input(
-      z.object({
-        id: z.string(),
-      })
-    )
-    .mutation(async ({ ctx, input: { id } }) => {
-      const user = await ctx.prisma.user.findFirst({
-        where: {
-          id,
-        },
-      });
-
-      if (!user) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to delete trainer",
-        });
-      }
-
-      const client = await ctx.prisma.client.delete({
-        where: {
-          id: user.clientId as string,
-        },
-      });
-
-      if (!client) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to delete trainer",
-        });
-      }
     }),
 
   getMyTrainer: authedProcedure

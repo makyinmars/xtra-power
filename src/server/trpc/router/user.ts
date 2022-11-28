@@ -112,12 +112,23 @@ export const userRouter = t.router({
 
   deleteUser: authedProcedure
     .input(z.object({ email: z.string() }))
-    .mutation(({ ctx, input: { email } }) => {
-      const user = ctx.prisma.user.delete({
+    .mutation(async ({ ctx, input: { email } }) => {
+      const user = await ctx.prisma.user.delete({
         where: {
           email,
         },
       });
+
+      // If trainerId is not null, delete trainer
+      if (user?.trainerId) {
+        const trainer = await ctx.prisma.trainer.delete({
+          where: {
+            id: user.trainerId,
+          },
+        });
+
+        return trainer;
+      }
 
       return user;
     }),
