@@ -29,67 +29,6 @@ export const userRouter = t.router({
       }
     }),
 
-  getUser: authedProcedure.query(({ ctx }) => {
-    const { session, prisma } = ctx;
-    if (session && session.user) {
-      const email = session.user.email as string;
-      return prisma.user.findUnique({
-        where: {
-          email,
-        },
-      });
-    }
-  }),
-
-  createUser: authedProcedure
-    .input(
-      z.object({
-        name: z.string(),
-        email: z.string(),
-      })
-    )
-    .mutation(({ ctx, input: { name, email } }) => {
-      const user = ctx.prisma.user.create({
-        data: {
-          name: name,
-          email: email,
-        },
-      });
-
-      return user;
-    }),
-
-  updateTypeUser: authedProcedure
-    .input(
-      z.object({
-        id: z.string(),
-        clientId: z.string().nullable(),
-        trainerId: z.string().nullable(),
-      })
-    )
-    .mutation(({ ctx, input: { id, clientId, trainerId } }) => {
-      if (clientId) {
-        const updatedUser = ctx.prisma.user.update({
-          where: {
-            id,
-          },
-          data: {
-            clientId,
-          },
-        });
-        return updatedUser;
-      } else {
-        const updatedUser = ctx.prisma.user.update({
-          where: {
-            id,
-          },
-          data: {
-            trainerId,
-          },
-        });
-        return updatedUser;
-      }
-    }),
   updateUser: authedProcedure
     .input(
       z.object({
@@ -129,6 +68,28 @@ export const userRouter = t.router({
 
         return trainer;
       }
+
+      return user;
+    }),
+
+  createUser: authedProcedure
+    .input(
+      z.object({
+        id: z.string().nullish(),
+        email: z.string().nullable().nullish(),
+        name: z.string().nullable().nullish(),
+        image: z.string().nullable().nullish(),
+      })
+    )
+    .mutation(({ ctx, input: { id, email, name, image } }) => {
+      const user = ctx.prisma.user.create({
+        data: {
+          id: id as string,
+          email,
+          name,
+          image,
+        },
+      });
 
       return user;
     }),

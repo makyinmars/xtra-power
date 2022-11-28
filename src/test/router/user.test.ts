@@ -1,102 +1,73 @@
-import { createContextInner } from "src/server/trpc/context";
-import { AppRouter, appRouter } from "src/server/trpc/router/index";
 import { inferProcedureInput } from "@trpc/server";
 import { User } from "@prisma/client";
 
-test("Create a user and retrieve the new user", async () => {
-  const session = {
-    user: {
-      id: "1",
-      name: "Test User",
-      email: "test-7@gmail.com",
-    },
-    expires: new Date().toDateString(),
-  };
+import { createContextInner } from "src/server/trpc/context";
+import { AppRouter, appRouter } from "src/server/trpc/router/index";
+import { session } from "src/utils/test-data";
 
-  const ctx = await createContextInner({
-    session: session,
-  });
-
+test("Create user", async () => {
+  const ctx = await createContextInner({ session });
   const caller = appRouter.createCaller(ctx);
 
   const input: inferProcedureInput<AppRouter["user"]["createUser"]> = {
-    name: "test",
-    email: "jonDoe@gmail.com",
+    id: session?.user?.id,
+    email: session?.user?.email,
+    name: session?.user?.name,
+    image: session?.user?.image,
   };
 
   const user = await caller.user.createUser(input);
 
-  const newUser = (await caller.user.getUserByEmail({
-    email: user.email as string,
-  })) as User;
-
-  expect(user).toMatchObject(newUser);
-
-  await caller.user.deleteUser({ email: newUser.email as string });
+  expect(user.email).toEqual(input.email);
 });
 
-test("Update a user and retrieve the updated user", async () => {
-  const session = {
-    user: {
-      id: "2",
-      name: "Test User",
-      email: "test-8@gmail.com",
-    },
-    expires: new Date().toDateString(),
-  };
-  const ctx = await createContextInner({
-    session: session,
-  });
+test("Get user by email", async () => {
+  const ctx = await createContextInner({ session });
 
   const caller = appRouter.createCaller(ctx);
 
-  const input: inferProcedureInput<AppRouter["user"]["createUser"]> = {
-    name: "test",
-    email: "janeDoe@gmail.com",
+  const input: inferProcedureInput<AppRouter["user"]["getUserByEmail"]> = {
+    email: "ffdevinmars@gmail.com",
   };
 
-  const newUser = await caller.user.createUser(input);
+  const user = (await caller.user.getUserByEmail(input)) as User;
 
-  const updateInput: inferProcedureInput<AppRouter["user"]["updateUser"]> = {
-    id: newUser.id,
-    name: "test2",
-  };
+  expect(user.email).toEqual(ctx.session?.user?.email);
+});
 
-  const updatedUser = await caller.user.updateUser(updateInput);
+test("Update user name", async () => {
+  const ctx = await createContextInner({ session });
+
+  const caller = appRouter.createCaller(ctx);
 
   const user = (await caller.user.getUserByEmail({
-    email: updatedUser.email as string,
+    email: "ffdevinmars@gmail.com",
   })) as User;
 
-  expect(updatedUser).toMatchObject(user);
-
-  await caller.user.deleteUser({email: newUser.email as string});
-});
-
-test("Delete a user", async () => {
-  const session = {
-    user: {
-      id: "3",
-      name: "Test User",
-      email: "test-9@gmail.com",
-    },
-    expires: new Date().toDateString(),
+  const input: inferProcedureInput<AppRouter["user"]["updateUser"]> = {
+    id: user.id,
+    name: "Test User",
   };
 
-  const ctx = await createContextInner({
-    session: session,
-  });
+  const userUpdated = (await caller.user.updateUser(input)) as User;
+
+  expect(userUpdated.name).toEqual(input.name);
+});
+
+test("Delete user", async () => {
+  const ctx = await createContextInner({ session });
 
   const caller = appRouter.createCaller(ctx);
 
-  const input: inferProcedureInput<AppRouter["user"]["createUser"]> = {
-    name: "test",
-    email: "franklixxxn@gmail.com",
+  const user = (await caller.user.getUserByEmail({
+    email: "ffdevinmars@gmail.com",
+  })) as User;
+
+  const input: inferProcedureInput<AppRouter["user"]["deleteUser"]> = {
+    email: user.email as string,
   };
 
-  const newUser = await caller.user.createUser(input);
+  const userDeleted = (await caller.user.deleteUser(input)) as User;
 
-  const deletedUser = await caller.user.deleteUser({ email: newUser.email as string });
-
-  expect(deletedUser).toMatchObject(newUser);
+  expect(userDeleted.email).toEqual(input.email);
 });

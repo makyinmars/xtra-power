@@ -7,4 +7,13 @@ export const authRouter = t.router({
   getSecretMessage: authedProcedure.query(() => {
     return "You are logged in and can see this secret message!";
   }),
+  getCurrentUser: authedProcedure.query(({ ctx }) => {
+    if (ctx.session?.user) {
+      return ctx.prisma.user.findFirst({
+        where: {
+          id: ctx.session.user.id,
+        },
+      });
+    }
+  }),
 });
