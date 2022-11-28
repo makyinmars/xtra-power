@@ -1,11 +1,8 @@
-import { t, authedProcedure } from "../trpc";
 import { z } from "zod";
 
-export const exerciseRouter = t.router({
-  getExercises: authedProcedure.query(({ ctx }) => {
-    return ctx.prisma.exercise.findMany();
-  }),
+import { t, authedProcedure } from "../trpc";
 
+export const exerciseRouter = t.router({
   getExerciseById: authedProcedure
     .input(z.object({ id: z.string() }))
     .query(({ ctx, input }) => {

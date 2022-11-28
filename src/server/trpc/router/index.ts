@@ -1,7 +1,6 @@
 // src/server/trpc/router/index.ts
 import { t } from "../trpc";
 
-import { exampleRouter } from "./example";
 import { authRouter } from "./auth";
 import { workoutRouter } from "./workout";
 import { userRouter } from "./user";
@@ -12,7 +11,6 @@ import { trainerRouter } from "./trainer";
 import { sessionRouter } from "./session";
 
 export const appRouter = t.router({
-  example: exampleRouter,
   auth: authRouter,
   workout: workoutRouter,
   exercise: exerciseRouter,

@@ -35,7 +35,7 @@ const CreateSet = ({ exerciseId }: SetProps) => {
 
   const createSets = trpc.set.createSets.useMutation({
     async onSuccess() {
-      await utils.exercise.getExercises.invalidate();
+      await utils.workout.getWorkoutById.invalidate();
       await utils.workout.getWorkoutById.invalidate();
       await utils.set.getSetsByExerciseId.invalidate();
     },
@@ -56,7 +56,7 @@ const CreateSet = ({ exerciseId }: SetProps) => {
           },
         });
       }
-    } catch { }
+    } catch {}
   };
 
   return (
