@@ -4,12 +4,23 @@ import { z } from "zod";
 import { t, authedProcedure } from "../trpc";
 
 export const workoutRouter = t.router({
-  getWorkouts: authedProcedure.query(({ ctx }) => {
-    return ctx.prisma.workout.findMany({
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+  getWorkouts: authedProcedure.query(async ({ ctx }) => {
+    if (ctx.session.user) {
+      const user = await ctx.prisma.user.findUnique({
+        where: {
+          email: ctx.session.user.email as string,
+        },
+      });
+
+      return await ctx.prisma.workout.findMany({
+        where: {
+          userId: user?.id,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
+    }
   }),
   getWorkoutById: authedProcedure
     .input(z.object({ id: z.string().nullable().nullish() }))

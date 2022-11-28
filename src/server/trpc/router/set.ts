@@ -2,19 +2,6 @@ import { t, authedProcedure } from "../trpc";
 import { z } from "zod";
 
 export const setRouter = t.router({
-  getSetsByExerciseId: authedProcedure
-    .input(
-      z.object({
-        exerciseId: z.string(),
-      })
-    )
-    .query(({ ctx, input }) => {
-      return ctx.prisma.set.findMany({
-        where: {
-          exerciseId: input.exerciseId,
-        },
-      });
-    }),
   createSets: authedProcedure
     .input(
       z.object({
@@ -36,6 +23,21 @@ export const setRouter = t.router({
         })),
       });
     }),
+
+  getSetsByExerciseId: authedProcedure
+    .input(
+      z.object({
+        exerciseId: z.string(),
+      })
+    )
+    .query(({ ctx, input }) => {
+      return ctx.prisma.set.findMany({
+        where: {
+          exerciseId: input.exerciseId,
+        },
+      });
+    }),
+
   updateSets: authedProcedure
     .input(
       z.object({
@@ -48,19 +50,26 @@ export const setRouter = t.router({
         ),
       })
     )
-    .mutation(({ ctx, input: { sets } }) => {
-      return ctx.prisma.set.updateMany({
-        data: sets.map((set) => ({
-          weight: set.weight,
-          reps: set.reps,
-        })),
-        where: {
-          id: {
-            in: sets.map((set) => set.id),
-          },
-        },
-      });
+    .mutation(async ({ ctx, input: { sets } }) => {
+      const updatedSets = await Promise.all(
+        sets.map((set) => {
+          return ctx.prisma.set.update({
+            where: {
+              id: set.id,
+            },
+            data: {
+              weight: set.weight,
+              reps: set.reps,
+            },
+          });
+        })
+      );
+
+      return {
+        count: updatedSets.length,
+      };
     }),
+
   deleteSetById: authedProcedure
     .input(
       z.object({
