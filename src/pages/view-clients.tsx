@@ -1,4 +1,5 @@
 import Head from "next/head";
+import { useRouter } from "next/router";
 
 import Menu from "src/components/menu";
 import { trpc } from "src/utils/trpc";
@@ -9,13 +10,17 @@ import { ssrInit } from "src/utils/ssg";
 const ViewClients = ({
   email,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-  const utils = trpc.useContext();
-  const myClients = utils.trainer.getMyClients.getData({
+  const router = useRouter();
+
+  const {
+    data: dataMyClients,
+    isLoading: isLoadingMyClients,
+    isError: isErrorMyClients,
+  } = trpc.trainer.getMyClients.useQuery({
     email,
   });
 
   const { data: clients } = trpc.trainer.getClients.useQuery();
-  console.log(clients);
 
   return (
     <Menu>
@@ -23,16 +28,28 @@ const ViewClients = ({
         <title>View Clients</title>
       </Head>
       <h1 className="title-page text-3xl">My Clients</h1>
+      {isLoadingMyClients && <Spinner />}
+      {isErrorMyClients && (
+        <p className="text-red-400">There was an error loading your clients.</p>
+      )}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-        {myClients &&
-          myClients.map((client, i) => (
+        {dataMyClients &&
+          dataMyClients.map((client, i) => (
             <div
               key={i}
-              className="flex flex-col gap-1 p-2 shadow-lg drop-shadow-lg bg-stone-300 rounded cursor-pointer hover:bg-gray-600 hover:text-slate-200"
+              className="flex flex-col gap-1 p-2 shadow-lg drop-shadow-lg bg-stone-300 rounded cursor-pointer"
             >
               <h2 className="text-lg">
                 <span className="font-bold">Client:</span> {client.name}{" "}
               </h2>
+              <div className="flex justify-center">
+                <button
+                  className="button text-sm p-1 w-full"
+                  onClick={() => router.push(`/users/${client.id}/workouts`)}
+                >
+                  View Workouts
+                </button>
+              </div>
             </div>
           ))}
       </div>

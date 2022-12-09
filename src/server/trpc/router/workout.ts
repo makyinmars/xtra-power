@@ -4,6 +4,41 @@ import { z } from "zod";
 import { t, authedProcedure } from "../trpc";
 
 export const workoutRouter = t.router({
+  getPublicWorkouts: t.procedure
+    .input(
+      z.object({
+        id: z.string(),
+      })
+    )
+    .query(({ ctx, input: { id } }) => {
+      return ctx.prisma.workout.findMany({
+        where: {
+          userId: id,
+        },
+      });
+    }),
+
+  getPublicWorkout: t.procedure
+    .input(
+      z.object({
+        workoutId: z.string(),
+      })
+    )
+    .query(({ ctx, input: { workoutId } }) => {
+      return ctx.prisma.workout.findUnique({
+        where: {
+          id: workoutId,
+        },
+        include: {
+          exercises: {
+            select: {
+              sets: true,
+            },
+          },
+        },
+      });
+    }),
+
   getWorkouts: authedProcedure.query(async ({ ctx }) => {
     if (ctx.session.user) {
       const user = await ctx.prisma.user.findUnique({

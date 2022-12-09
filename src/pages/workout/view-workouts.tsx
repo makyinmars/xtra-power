@@ -28,20 +28,6 @@ const ViewWorkouts = ({
     } catch {}
   };
 
-  const user = utils.user.getUserByEmail.getData({
-    email,
-  });
-
-  useEffect(() => {
-    if (user) {
-      if (user?.trainerId) {
-        router.push("/");
-      }
-    } else {
-      router.push("/");
-    }
-  }, [router, user]);
-
   return (
     <Menu>
       <Head>
@@ -95,16 +81,39 @@ export const getServerSideProps = async (
 
   const email = session?.user?.email as string;
 
-  await ssg.user.getUserByEmail.prefetch({
-    email,
-  });
+  if (email) {
+    const user = await ssg.user.getUserByEmail.fetch({ email });
+    if (user?.clientId) {
+      await ssg.workout.getWorkouts.prefetch();
 
-  await ssg.workout.getWorkouts.prefetch();
-
-  return {
-    props: {
-      trpcState: ssg.dehydrate(),
-      email: email ?? null,
-    },
-  };
+      return {
+        props: {
+          trpcState: ssg.dehydrate(),
+          email: email ?? null,
+        },
+      };
+    } else {
+      return {
+        props: {
+          trpcState: ssg.dehydrate(),
+          id: null,
+        },
+        redirect: {
+          destination: "/",
+          permanent: false,
+        },
+      };
+    }
+  } else {
+    return {
+      props: {
+        trpcState: ssg.dehydrate(),
+        id: null,
+      },
+      redirect: {
+        destination: "/",
+        permanent: false,
+      },
+    };
+  }
 };

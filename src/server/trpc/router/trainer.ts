@@ -60,7 +60,7 @@ export const trainerRouter = t.router({
         email: z.string().nullable().nullish(),
       })
     )
-    .query(({ ctx, input: { email } }) => {
+    .query(async ({ ctx, input: { email } }) => {
       const clients = ctx.prisma.trainer.findMany({
         where: {
           email,
@@ -70,7 +70,24 @@ export const trainerRouter = t.router({
         },
       });
 
-      return clients;
+      const trainer = await ctx.prisma.trainer.findUnique({
+        where: {
+          email: email as string,
+        },
+      });
+
+      // Get the clients that clientId is not null and trainerId is the same as the trainer's id
+
+      const myClients = await ctx.prisma.user.findMany({
+        where: {
+          clientId: {
+            not: null,
+          },
+          trainerId: trainer?.id,
+        },
+      });
+
+      return myClients;
     }),
 
   getClients: authedProcedure.query(({ ctx }) => {
