@@ -7,36 +7,60 @@ export const workoutRouter = t.router({
   getPublicWorkouts: t.procedure
     .input(
       z.object({
-        id: z.string(),
+        id: z.string().nullable(),
       })
     )
     .query(({ ctx, input: { id } }) => {
-      return ctx.prisma.workout.findMany({
-        where: {
-          userId: id,
-        },
-      });
+      if (id) {
+        return ctx.prisma.workout.findMany({
+          where: {
+            userId: id,
+          },
+          include: {
+            user: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        });
+      } else {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You are not authorized to perform this action",
+        });
+      }
     }),
 
   getPublicWorkout: t.procedure
     .input(
       z.object({
-        workoutId: z.string(),
+        workoutId: z.string().nullable(),
       })
     )
     .query(({ ctx, input: { workoutId } }) => {
-      return ctx.prisma.workout.findUnique({
-        where: {
-          id: workoutId,
-        },
-        include: {
-          exercises: {
-            select: {
-              sets: true,
+      if (workoutId) {
+        return ctx.prisma.workout.findUnique({
+          where: {
+            id: workoutId,
+          },
+          include: {
+            exercises: {
+              select: {
+                name: true,
+                description: true,
+                id: true,
+                sets: true,
+              },
             },
           },
-        },
-      });
+        });
+      } else {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You are not authorized to perform this action",
+        });
+      }
     }),
 
   getWorkouts: authedProcedure.query(async ({ ctx }) => {
