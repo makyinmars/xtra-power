@@ -12,6 +12,8 @@ const ViewClients = ({
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   const router = useRouter();
 
+  const utils = trpc.useContext();
+
   const {
     data: dataMyClients,
     isLoading: isLoadingMyClients,
@@ -19,6 +21,29 @@ const ViewClients = ({
   } = trpc.trainer.getMyClients.useQuery({
     email,
   });
+
+  const removeClient = trpc.trainer.removeClient.useMutation({
+    async onSuccess() {
+      await utils.trainer.getMyClients.invalidate();
+    },
+  });
+  const addClient = trpc.trainer.addClient.useMutation({
+    async onSuccess() {
+      await utils.trainer.getMyClients.invalidate();
+    },
+  });
+
+  const onAddClient = async (userId: string, clientId: string) => {
+    try {
+      await addClient.mutateAsync({ userId, clientId });
+    } catch {}
+  };
+
+  const onRemoveClient = async (userId: string) => {
+    try {
+      await removeClient.mutateAsync({ userId });
+    } catch {}
+  };
 
   const { data: clients } = trpc.trainer.getClients.useQuery();
 
@@ -42,12 +67,18 @@ const ViewClients = ({
               <h2 className="text-lg">
                 <span className="font-bold">Client:</span> {client.name}{" "}
               </h2>
-              <div className="flex justify-center">
+              <div className="flex justify-center flex-col gap-2">
                 <button
                   className="button text-sm p-1 w-full"
                   onClick={() => router.push(`/users/${client.id}/workouts`)}
                 >
                   View Workouts
+                </button>
+                <button
+                  className="button text-sm p-1 w-full"
+                  onClick={() => onRemoveClient(client.id)}
+                >
+                  Remove Client
                 </button>
               </div>
             </div>
@@ -61,9 +92,17 @@ const ViewClients = ({
           clients.map((client, i) => (
             <div
               key={i}
-              className="flex flex-col gap-1 p-2 shadow-lg drop-shadow-lg bg-stone-300 rounded cursor-pointer hover:bg-gray-600 hover:text-slate-200"
+              className="flex flex-col items-center gap-1 p-2 shadow-lg drop-shadow-lg bg-stone-300 rounded cursor-pointer hover:bg-gray-600 hover:text-slate-200"
             >
               <h2 className="text-lg">{client.name} </h2>
+              <button
+                className="button p-1"
+                onClick={() =>
+                  onAddClient(client.id, client.clientId as string)
+                }
+              >
+                Add Client
+              </button>
             </div>
           ))}
       </div>

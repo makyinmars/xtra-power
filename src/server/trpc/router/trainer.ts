@@ -61,15 +61,6 @@ export const trainerRouter = t.router({
       })
     )
     .query(async ({ ctx, input: { email } }) => {
-      const clients = ctx.prisma.trainer.findMany({
-        where: {
-          email,
-        },
-        include: {
-          users: true,
-        },
-      });
-
       const trainer = await ctx.prisma.trainer.findUnique({
         where: {
           email: email as string,
@@ -77,7 +68,6 @@ export const trainerRouter = t.router({
       });
 
       // Get the clients that clientId is not null and trainerId is the same as the trainer's id
-
       const myClients = await ctx.prisma.user.findMany({
         where: {
           clientId: {
@@ -101,4 +91,80 @@ export const trainerRouter = t.router({
 
     return clients;
   }),
+  removeClient: authedProcedure
+    .input(
+      z.object({
+        userId: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input: { userId } }) => {
+      const trainer = await ctx.prisma.user.findUnique({
+        where: {
+          id: ctx.session.user.id as string,
+        },
+        select: {
+          trainerId: true,
+        },
+      });
+
+      const client = await ctx.prisma.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          clientId: null,
+        },
+      });
+
+      console.log("Client id", client);
+
+      await ctx.prisma.trainer.update({
+        where: {
+          id: trainer?.trainerId as string,
+        },
+        data: {
+          users: {
+            disconnect: {
+              id: userId,
+            },
+          },
+        },
+      });
+
+      return client;
+    }),
+
+  addClient: authedProcedure
+    .input(
+      z.object({
+        userId: z.string(),
+        clientId: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input: { userId, clientId } }) => {
+      const trainer = await ctx.prisma.user.findUnique({
+        where: {
+          id: ctx.session.user.id as string,
+        },
+        select: {
+          trainerId: true,
+        },
+      });
+
+      const client = await ctx.prisma.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          clientId: clientId,
+          trainer: {
+            connect: {
+              id: trainer?.trainerId as string,
+            },
+          },
+        },
+      });
+
+      return client;
+    }),
 });
