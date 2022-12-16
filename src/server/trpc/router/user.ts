@@ -81,8 +81,22 @@ export const userRouter = t.router({
         image: z.string().nullable().nullish(),
       })
     )
-    .mutation(({ ctx, input: { id, email, name, image } }) => {
-      const user = ctx.prisma.user.create({
+    .mutation(async ({ ctx, input: { id, email, name, image } }) => {
+      // Check if user exists
+      const userExists = await ctx.prisma.user.findUnique({
+        where: {
+          id: id as string,
+        },
+      });
+
+      if (userExists) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "User already exists",
+        });
+      }
+
+      const user = await ctx.prisma.user.create({
         data: {
           id: id as string,
           email,
